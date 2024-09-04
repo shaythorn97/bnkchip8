@@ -1,9 +1,14 @@
 cmake_minimum_required(VERSION 3.18)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 project(bnkchip8)
 
 add_executable(main
     src/main.cpp
+
+    src/chip8.h
+    src/chip8.cpp
 )
 
 ## Scripts
