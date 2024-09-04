@@ -24,7 +24,7 @@ public:
     uint8_t stack[16]; // this is for storing our return addresses for when we enter functions
     uint16_t sp; // this is the stack pointer, it points to the current location in the stack
     uint16_t opcode; // this is the current opcode we are executing
-    uint8_t key[16]; // this is for storing our keycodes
+    uint8_t key[16]; // this is for storing our keycodes for input
 
     // constructor is cringe but its C++ feature
     Chip8();
