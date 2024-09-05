@@ -96,10 +96,10 @@ void Chip8::ShiftVXRight()
 
 }
 
-void Chip8::SetVXVYMinusVX()
+void Chip8::SetVXVYMinusVX() // 8XY7
 {}
 
-void Chip8::ShiftVXLeft()
+void Chip8::ShiftVXLeft() // 8XYE
 {}
 
 void Chip8::SkipNotEqualVXVY() // 9XY0
@@ -184,7 +184,7 @@ void Chip8::SetBCDVX() // FX33
 
 void Chip8::SaveVX() // FX55
 {
-    
+      
 }
 
 void Chip8::LoadVX() // FX65
