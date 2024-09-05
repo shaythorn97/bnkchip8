@@ -1,16 +1,8 @@
-// you use '#pragma once' so you dont recursively add header files, you can also do it like this which is the old C way
-// #ifndef CHIP8_H
-// define CHIP8_H
-//
-// code goes here
-//
-// endif
 #pragma once
 
-// this gives us the uint variables 
 #include <cstdint>
+#include <string>
 
-// you probably remember what a class is but its important to remember that both struct and class are identical in C++ other than the fact that everything in a struct is public by default whereas in a class they are private
 class Chip8
 {
 public:
@@ -25,19 +17,29 @@ public:
     uint16_t sp; // this is the stack pointer, it points to the current location in the stack
     uint16_t opcode; // this is the current opcode we are executing
     uint8_t key[16]; // this is for storing our keycodes for input
+    uint8_t fontset[80]; // this is for loading sprites we could probably load these in with a text file instead, we can also use raw string literals which we can pull in through separate files theyre pretty cool
 
     // constructor is cringe but its C++ feature
     Chip8();
     ~Chip8();
 
+    // loop functions
+    void EmulateCycle();
+    void Fetch();
+    void Decode();
+    void Execute();
+    void UpdateTimers();
+
+    void LoadROM(const std::string& fileName);
+
     // opcode functions - read the wiki or that thing I sent you, some of the names are a bit pants but I think they make sense
-    void ClearDisplay();
-    void Return();
-    void Jump();
-    void CallSubroutine();
-    void SkipEqualVXNN();
-    void SkipNotEqualVXNN();
-    void SkipEqualVXVY();
+    void CLS();
+    void RET();
+    void JPaddr();
+    void CALLaddr();
+    void SEVxByte();
+    void SNEVxByte();
+    void SEVxVy();
     void SetVXNN();
     void AddNNVX();
     void SetVXVY();

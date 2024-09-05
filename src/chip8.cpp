@@ -3,7 +3,30 @@
 
 Chip8::Chip8()
 {
+    // here we need to set our default values, we start at address 0x200
+    pc = 0x200;
+    opcode = 0;
+    I = 0;
+    sp = 0;
 
+    // clear all the other shit
+    for (int i = 0; i < 64 * 32; i++)
+        display[i] = 0;
+
+    for (int i = 0; i < 16; i++)
+        V[i] = 0;
+
+    for (int i = 0; i < 16; i++)
+        stack[i] = 0;
+
+    for (int i = 0; i < 4096; i++)
+        memory[i] = 0;
+    
+    // load fontset from rom into memory
+     
+    // reset timers
+    delayTimer = 0;
+    soundTimer = 0;
 }
 
 Chip8::~Chip8()
@@ -11,30 +34,64 @@ Chip8::~Chip8()
 
 }
 
-void Chip8::ClearDisplay()
+void Chip8::EmulateCycle()
 {
 
 }
 
-void Chip8::Return()
+void Chip8::Fetch()
+{
+    opcode = memory[pc] << 8 | memory[pc + 1];
+}
+
+void Chip8::Decode()
+{
+    // here we need to get the opcode instruction from the opcode
+    // this is going to be a bit hacky because we need to be able to nest if statements or something
+}
+
+void Chip8::Execute()
+{
+    // run the instruction with the current opcode key
+    // we can probs do something like this
+    //
+    // std::unsigned_map<uint16_t, Instruction> instructions;
+    //
+    // if (instructions.contains(opcode))
+    //     instructions[opcode];
+    // else
+    //     print some error message because the opcode doesn't exist
+}
+
+void Chip8::UpdateTimers()
+{
+    // this is for our timers, we want 60 opcodes executed per cycle as it runs at 60hz
+}
+
+void Chip8::CLS()
+{
+    
+}
+
+void Chip8::RET()
 {
     // go back in the stack
     pc = stack[sp];
     sp--;
 }
 
-void Chip8::Jump()
+void Chip8::JPaddr()
 {
     uint16_t nnn = opcode & 0x0FFF;
     pc = nnn;
 }
 
-void Chip8::CallSubroutine()
+void Chip8::CALLaddr()
 {
     // this will call a function pointer
 }
 
-void Chip8::SkipEqualVXNN() // 3XNN
+void Chip8::SEVxByte() // 3XNN
 {
     uint8_t nn = (opcode & 0x00FF);
     uint16_t vx = V[(opcode & 0x0F00) >> 8];
@@ -45,7 +102,7 @@ void Chip8::SkipEqualVXNN() // 3XNN
         pc += 2;
 }
 
-void Chip8::SkipNotEqualVXNN() // 4XNN
+void Chip8::SNEVxByte() // 4XNN
 {
     uint8_t nn = (opcode & 0x00FF);
     uint16_t vx = V[(opcode & 0x0F00) >> 8];
@@ -56,7 +113,7 @@ void Chip8::SkipNotEqualVXNN() // 4XNN
         pc += 2;
 }
 
-void Chip8::SkipEqualVXVY() // 5XY0
+void Chip8::SEVxVy() // 5XY0
 {
     uint16_t vx = V[(opcode & 0x0F00) >> 8];
     uint16_t vy = V[(opcode & 0x00F0) >> 4];
@@ -67,7 +124,7 @@ void Chip8::SkipEqualVXVY() // 5XY0
         pc += 2;
 }
 
-void Chip8::SetVXNN() //6XNN
+void Chip8::SetVXNN() // 6XNN
 {
     uint8_t nn = (opcode & 0x00FF);
     V[(opcode & 0x0F00) >> 8] = nn;
