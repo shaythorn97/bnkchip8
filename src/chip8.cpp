@@ -52,10 +52,9 @@ void Chip8::SkipNotEqualVXNN() // 4XNN
 
 void Chip8::SkipEqualVXVY() // 5XY0
 {
-    uint16_t vy = V[(opcode & 0x00FF) >> 4];
-    uint16_t vx = V[(opcode + 0x0F00) >> 8];
-
-    if (vx == vy)
+    uint16_t VY = V[(opcode & 0x00FF) >> 4];
+    uint16_t VX = V[(opcode + 0x0F00) >> 8];
+    if (VX == VY) {
         pc += 4;
     else
         pc += 2;
