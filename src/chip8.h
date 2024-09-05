@@ -57,7 +57,9 @@ public:
     void SkipIfKeyPressed();
     void SkipIfKeyReleased();
     void SetVXDelayTimer();
-    void SetVXSoundTimer();
+    void WaitForKeyPress();
+    void SetDelayTimerVX();
+    void SetSoundTimerVX();
     void AddVXI();
     void SetIVX();
     void SetBCDVX();

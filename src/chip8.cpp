@@ -1,6 +1,12 @@
 #include "chip8.h"
+#include <cstdint>
 
 Chip8::Chip8()
+{
+
+}
+
+Chip8::~Chip8()
 {
 
 }
@@ -115,38 +121,81 @@ void Chip8::SkipNotEqualVXVY() // 9XY0
         pc += 2;
 }
 
-void Chip8::SetINN()
+void Chip8::SetINN() // ANNN
+{
+    uint16_t nnn = opcode & 0x0FFF;
+    I = nnn;
+}
+
+void Chip8::JumpV0() // BNNN
+{
+    uint16_t nnn = opcode & 0x0FFF;
+    uint16_t loc = nnn + V[0];
+
+    pc = loc;
+}
+
+void Chip8::SetVXRand() // CXKK
+{
+    // random number between 0 and 255
+}
+
+void Chip8::DrawDisplay() // DXYN
+{
+    // this is drawing operation, leave this for now
+}
+
+void Chip8::SkipIfKeyPressed() // EX9E
+{
+
+}
+
+void Chip8::SkipIfKeyReleased() // EXA1
+{
+
+}
+
+void Chip8::SetVXDelayTimer() // FX07
+{
+    
+}
+
+void Chip8::WaitForKeyPress() // FX0A
 {}
 
-void Chip8::JumpV0()
+void Chip8::SetDelayTimerVX() // FX15
 {}
 
-void Chip8::SetVXRand()
-{}
+void Chip8::SetSoundTimerVX() // FX18  
+{
 
-void Chip8::DrawDisplay()
-{}
+}
 
-void Chip8::SkipIfKeyPressed()
-{}
+void Chip8::AddVXI() // FX1E
+{
+    uint8_t vx = V[(opcode & 0x0F00) >> 8];
+    
+    I += vx;
+}
 
-void Chip8::SkipIfKeyReleased()
-{}
+void Chip8::SetIVX() // FX29
+{
+    uint8_t vx = V[(opcode & 0x0F00) >> 8];
 
-void Chip8::SetVXDelayTimer()
-{}
+    // this will get the sprite from the fontset
+}
 
-void Chip8::SetVXSoundTimer()
-{}
+void Chip8::SetBCDVX() // FX33
+{
+    // this is a pretty hard one, it needs to store some memory in a couple places
+}
 
-void Chip8::AddVXI()
-{}
+void Chip8::SaveVX() // FX55
+{
+    
+}
 
-void Chip8::SetIVX()
-{}
+void Chip8::LoadVX() // FX65
+{
 
-void Chip8::SaveVX()
-{}
-
-void Chip8::LoadVX()
-{}
+}
