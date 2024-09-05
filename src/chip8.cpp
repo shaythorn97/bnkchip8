@@ -37,28 +37,28 @@ void Chip8::CallSubroutine()
 void Chip8::SkipEqualVXNN() // 3XNN
 {
     uint8_t nn = (opcode & 0x00FF);
-    uint16_t vx = V[(opcode + 0x0F00) >> 8];
+    uint16_t vx = V[(opcode & 0x0F00) >> 8];
 
     if (nn == vx)
         pc += 4;
-    else 
+    else
         pc += 2;
 }
 
 void Chip8::SkipNotEqualVXNN() // 4XNN
 {
     uint8_t nn = (opcode & 0x00FF);
-    uint16_t vx = V[(opcode + 0x0F00) >> 8];
+    uint16_t vx = V[(opcode & 0x0F00) >> 8];
 
     if (nn != vx)
         pc += 4;
-    else 
+    else
         pc += 2;
 }
 
 void Chip8::SkipEqualVXVY() // 5XY0
 {
-    uint16_t vx = V[(opcode + 0x0F00) >> 8];
+    uint16_t vx = V[(opcode & 0x0F00) >> 8];
     uint16_t vy = V[(opcode & 0x00F0) >> 4];
 
     if (vx == vy)
@@ -67,33 +67,71 @@ void Chip8::SkipEqualVXVY() // 5XY0
         pc += 2;
 }
 
-void Chip8::SetVXNN()
-{}
-
-void Chip8::AddNNVX()
-{}
-
-void Chip8::SetVXVY()
-{}
-
-void Chip8::OR()
-{}
-
-void Chip8::AND()
-{}
-
-void Chip8::XOR()
-{}
-
-void Chip8::AddVYVX()
-{}
-
-void Chip8::SubtractVYVX()
-{}
-
-void Chip8::ShiftVXRight()
+void Chip8::SetVXNN() //6XNN
 {
+    uint8_t nn = (opcode & 0x00FF);
+    V[(opcode & 0x0F00) >> 8] = nn;
+}
 
+void Chip8::AddNNVX() //7XNN
+{
+    uint8_t nn = (opcode & 0x00FF);
+    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x0F00) >> 8] + nn);
+}
+
+void Chip8::SetVXVY() //8XY0
+{
+    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x00F0) >> 4]);
+}
+
+void Chip8::OR() //8XY1
+{
+    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x0F00) >> 8] | (V[(opcode & 0x00F0) >> 4]));
+}
+
+void Chip8::AND() //8XY2
+{
+    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x0F00) >> 8] & (V[(opcode & 0x00F0) >> 4]));
+}
+
+void Chip8::XOR() //8XY3
+{
+    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x0F00) >> 8] ^  (V[(opcode & 0x00F0) >> 4]));
+}
+
+void Chip8::AddVYVX() //8XY4 Sets VF to 1 if there is an overflow 
+{
+    uint16_t VX = (V[(opcode & 0x0F00) >> 8] + (V[(opcode & 0x00F0) >> 4]));
+    if (VX > 0x00FF) {
+        V[0xF] = 1;
+    }
+    else {
+        V[0xF] = 0;
+    }
+    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x0F00) >> 8] + (V[(opcode & 0x00F0) >> 4]));
+}
+
+void Chip8::SubtractVYVX() //8XY5 Sets VF to 0 if there is an underflow 
+{
+  
+    if (V[(opcode & 0x0F00) >> 8] < (V[(opcode & 0x00F0) >> 4])) {
+        V[0xF] = 1;
+    }
+    else {
+        V[0xF] = 0;
+    }
+    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x0F00) >> 8] - (V[(opcode & 0x00F0) >> 4]));
+}
+
+void Chip8::ShiftVXRight() //8XY6 Shifts VX to the right by 1 bit, if LSB is
+{
+    if ((V[(opcode & 0x0F00)] % 2) > 0) { //this may need to change, unsure if flag logic runs before or after shift 
+        V[0xF] = 1;
+    }
+    else {
+        V[0xF] = 0;
+    }
+    V[(opcode & 0x0F00)] >>= 1;
 }
 
 void Chip8::SetVXVYMinusVX() // 8XY7
@@ -139,7 +177,7 @@ void Chip8::DrawDisplay() // DXYN
 
 void Chip8::SkipIfKeyPressed() // EX9E
 {
-
+    //if(V[(opcode & 0x0F00) >> 8] = key)
 }
 
 void Chip8::SkipIfKeyReleased() // EXA1
