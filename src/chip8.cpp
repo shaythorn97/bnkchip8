@@ -26,17 +26,41 @@ void Chip8::CallSubroutine()
     // this will call a function pointer
 }
 
-void Chip8::SkipEqualVXNN()
+void Chip8::SkipEqualVXNN() //3XNN
 {
-    
+    uint8_t nn = (opcode & 0x00FF);
+    uint16_t VX = V[(opcode + 0x0F00) >> 8];
+    if (nn == VX){
+        pc += 4;
+    }
+    else {
+        pc += 2;
+    }
 }
 
-void Chip8::SkipNotEqualVXNN()
+void Chip8::SkipNotEqualVXNN() //4XNN
 {
+    uint8_t nn = (opcode & 0x00FF);
+    uint16_t VX = V[(opcode + 0x0F00) >> 8];
+    if (nn != VX) {
+        pc += 4;
+    }
+    else {
+        pc += 2;
+    }
 }
 
-void Chip8::SkipEqualVXVY()
-{}
+void Chip8::SkipEqualVXVY() //5XY0
+{
+    uint16_t VY = V[(opcode & 0x00FF) >> 4];
+    uint16_t VX = V[(opcode + 0x0F00) >> 8];
+    if (VX == VY) {
+        pc += 4;
+    }
+    else {
+        pc += 2;
+    }
+}
 
 void Chip8::SetVXNN()
 {}
