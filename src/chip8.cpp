@@ -114,7 +114,7 @@ void Chip8::AddVYVX() //8XY4 Sets VF to 1 if there is an overflow
 void Chip8::SubtractVYVX() //8XY5 Sets VF to 0 if there is an underflow 
 {
   
-    if (V[(opcode & 0x0F00) >> 8] < (V[(opcode & 0x00F0) >> 4])) {
+    if (V[(opcode & 0x0F00) >> 8] > (V[(opcode & 0x00F0) >> 4])) {
         V[0xF] = 1;
     }
     else {
@@ -125,7 +125,7 @@ void Chip8::SubtractVYVX() //8XY5 Sets VF to 0 if there is an underflow
 
 void Chip8::ShiftVXRight() //8XY6 Shifts VX to the right by 1 bit, if LSB is
 {
-    if ((V[(opcode & 0x0F00)] % 2) > 0) { //this may need to change, unsure if flag logic runs before or after shift 
+    if ((V[(opcode & 0x0F00) >> 8] % 2) > 0) { //this may need to change, unsure if flag logic runs before or after shift 
         V[0xF] = 1;
     }
     else {
@@ -134,11 +134,27 @@ void Chip8::ShiftVXRight() //8XY6 Shifts VX to the right by 1 bit, if LSB is
     V[(opcode & 0x0F00)] >>= 1;
 }
 
-void Chip8::SetVXVYMinusVX() // 8XY7
-{}
+void Chip8::SetVXVYMinusVX() // 8XY7 Sets VF to 0 if there is an underflow
+{
+    if (V[(opcode & 0x0F00) >> 8] < (V[(opcode & 0x00F0) >> 4])) {
+        V[0xF] = 1;
+    }
+    else {
+        V[0xF] = 0;
+    }
+    V[(opcode & 0x0F00) >> 8] = ((V[(opcode & 0x00F0) >> 4]) - V[(opcode & 0x0F00) >> 8]);
+}
 
 void Chip8::ShiftVXLeft() // 8XYE
-{}
+{
+    if ((V[(opcode & 0x0F00) >> 11]) > 0) { //this may need to change, unsure if flag logic runs before or after shift 
+        V[0xF] = 1;
+    }
+    else {
+        V[0xF] = 0;
+    }
+    V[(opcode & 0x0F00)] <<= 1;
+}
 
 void Chip8::SkipNotEqualVXVY() // 9XY0
 {
