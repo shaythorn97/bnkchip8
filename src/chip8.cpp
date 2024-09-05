@@ -31,28 +31,28 @@ void Chip8::CallSubroutine()
 void Chip8::SkipEqualVXNN() // 3XNN
 {
     uint8_t nn = (opcode & 0x00FF);
-    uint16_t vx = V[(opcode + 0x0F00) >> 8];
+    uint16_t vx = V[(opcode & 0x0F00) >> 8];
 
     if (nn == vx)
         pc += 4;
-    else 
+    else
         pc += 2;
 }
 
 void Chip8::SkipNotEqualVXNN() // 4XNN
 {
     uint8_t nn = (opcode & 0x00FF);
-    uint16_t vx = V[(opcode + 0x0F00) >> 8];
+    uint16_t vx = V[(opcode & 0x0F00) >> 8];
 
     if (nn != vx)
         pc += 4;
-    else 
+    else
         pc += 2;
 }
 
 void Chip8::SkipEqualVXVY() // 5XY0
 {
-    uint16_t vx = V[(opcode + 0x0F00) >> 8];
+    uint16_t vx = V[(opcode & 0x0F00) >> 8];
     uint16_t vy = V[(opcode & 0x00F0) >> 4];
 
     if (vx == vy)
@@ -61,14 +61,22 @@ void Chip8::SkipEqualVXVY() // 5XY0
         pc += 2;
 }
 
-void Chip8::SetVXNN()
-{}
+void Chip8::SetVXNN() //6XNN
+{
+    uint8_t nn = (opcode & 0x00FF);
+    V[(opcode & 0x0F00) >> 8] = nn;
+}
 
-void Chip8::AddNNVX()
-{}
+void Chip8::AddNNVX() //7XNN
+{
+    uint8_t nn = (opcode & 0x00FF);
+    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x0F00) >> 8] + nn);
+}
 
 void Chip8::SetVXVY()
-{}
+{
+
+}
 
 void Chip8::OR()
 {}
