@@ -1,5 +1,4 @@
 #include "chip8.h"
-#include <cstdint>
 
 Chip8::Chip8()
 {
@@ -36,7 +35,13 @@ Chip8::~Chip8()
 
 void Chip8::EmulateCycle()
 {
+    Fetch();
 
+    Decode();
+
+    Execute();
+
+    UpdateTimers();
 }
 
 void Chip8::Fetch()
@@ -48,12 +53,22 @@ void Chip8::Decode()
 {
     // here we need to get the opcode instruction from the opcode
     // this is going to be a bit hacky because we need to be able to nest if statements or something
+    //
+    // we can atleast separate our logic into here so we know which instruction to run, I think the switch statement method is pants
 }
 
 void Chip8::Execute()
 {
     // run the instruction with the current opcode key
     // we can probs do something like this
+    //
+    // this is a function pointer, this is the C++ way
+    // using Instruction = std::function<void()>;
+    //
+    // this is the C way
+    // typedef void(*Instruction)();
+    //
+    // its probably worth having a read about them, they are sick
     //
     // std::unsigned_map<uint16_t, Instruction> instructions;
     //
