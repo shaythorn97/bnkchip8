@@ -1,5 +1,7 @@
 #include "chip8.h"
 
+#include <iostream>
+
 Chip8::Chip8()
 {
     // here we need to set our default values, we start at address 0x200
@@ -21,11 +23,13 @@ Chip8::Chip8()
     for (int i = 0; i < 4096; i++)
         memory[i] = 0;
     
-    // load fontset from rom into memory
+    // load fontset into memory
      
     // reset timers
     delayTimer = 0;
     soundTimer = 0;
+
+    // here we are going to add our instructions into the map
 }
 
 Chip8::~Chip8()
@@ -37,50 +41,68 @@ void Chip8::EmulateCycle()
 {
     Fetch();
 
-    Decode();
-
-    Execute();
+    DecodeAndExecute();
 
     UpdateTimers();
 }
 
+// mayebe we get rid of these they are very simple
 void Chip8::Fetch()
 {
     opcode = memory[pc] << 8 | memory[pc + 1];
 }
 
-void Chip8::Decode()
+void Chip8::DecodeAndExecute()
 {
     // here we need to get the opcode instruction from the opcode
     // this is going to be a bit hacky because we need to be able to nest if statements or something
     //
     // we can atleast separate our logic into here so we know which instruction to run, I think the switch statement method is pants
+    //
+    // we need to go in at the addresses 0x0000, 0x8000, 0xE000, 0xF000
+    uint16_t key = opcode & 0xF000;
+
+    if (key == 0x0000 || key == 0x8000)
+    {
+        // we need to check the last four bits
+        // 0x0000
+        // 0x000E
+        Execute(opcode & 0xF00F);
+    }
+    else if (key == 0xE000 || key == 0xF000)
+    {
+        // we need to check the last 8 bits 
+        // 0xE09E
+        // 0x00A1
+        Execute(opcode & 0xF0FF);
+    }
+    else
+    {
+        Execute(key);
+    }
 }
 
-void Chip8::Execute()
+void Chip8::Execute(uint16_t oc)
 {
-    // run the instruction with the current opcode key
-    // we can probs do something like this
-    //
-    // this is a function pointer, this is the C++ way
-    // using Instruction = std::function<void()>;
-    //
-    // this is the C way
-    // typedef void(*Instruction)();
-    //
-    // its probably worth having a read about them, they are sick
-    //
-    // std::unsigned_map<uint16_t, Instruction> instructions;
-    //
-    // if (instructions.contains(opcode))
-    //     instructions[opcode];
-    // else
-    //     print some error message because the opcode doesn't exist
+    if (instructions.contains(opcode))
+        instructions[opcode]();
+    else
+        std::cout << "Invalid opcode\n";
 }
 
 void Chip8::UpdateTimers()
 {
     // this is for our timers, we want 60 opcodes executed per cycle as it runs at 60hz
+    if (delayTimer > 0)
+        delayTimer--;
+
+    if (soundTimer > 0)
+    {
+        if (soundTimer == 1)
+            std::cout << "Beep!\n";
+
+        soundTimer--;
+    }
 }
 
 void Chip8::CLS()
@@ -103,7 +125,9 @@ void Chip8::JPaddr()
 
 void Chip8::CALLaddr()
 {
-    // this will call a function pointer
+    stack[sp] = pc;
+    sp++;
+    pc = opcode & 0x0FFF;
 }
 
 void Chip8::SEVxByte() // 3XNN
@@ -145,86 +169,81 @@ void Chip8::SetVXNN() // 6XNN
     V[(opcode & 0x0F00) >> 8] = nn;
 }
 
-void Chip8::AddNNVX() //7XNN
+void Chip8::AddNNVX() // 7XNN
 {
     uint8_t nn = (opcode & 0x00FF);
-    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x0F00) >> 8] + nn);
+    V[(opcode & 0x0F00) >> 8] += nn;
 }
 
-void Chip8::SetVXVY() //8XY0
+void Chip8::SetVXVY() // 8XY0
 {
     V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x00F0) >> 4]);
 }
 
-void Chip8::OR() //8XY1
+void Chip8::OR() // 8XY1
 {
-    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x0F00) >> 8] | (V[(opcode & 0x00F0) >> 4]));
+    V[(opcode & 0x0F00) >> 8] |= V[(opcode & 0x00F0) >> 4];
 }
 
-void Chip8::AND() //8XY2
+void Chip8::AND() // 8XY2
 {
-    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x0F00) >> 8] & (V[(opcode & 0x00F0) >> 4]));
+    V[(opcode & 0x0F00) >> 8] &= V[(opcode & 0x00F0) >> 4];
 }
 
-void Chip8::XOR() //8XY3
+void Chip8::XOR() // 8XY3
 {
-    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x0F00) >> 8] ^  (V[(opcode & 0x00F0) >> 4]));
+    V[(opcode & 0x0F00) >> 8] ^=  V[(opcode & 0x00F0) >> 4];
 }
 
-void Chip8::AddVYVX() //8XY4 Sets VF to 1 if there is an overflow 
+void Chip8::AddVYVX() // 8XY4 Sets VF to 1 if there is an overflow 
 {
-    uint16_t VX = (V[(opcode & 0x0F00) >> 8] + (V[(opcode & 0x00F0) >> 4]));
-    if (VX > 0x00FF) {
+    uint16_t vx = (V[(opcode & 0x0F00) >> 8] + (V[(opcode & 0x00F0) >> 4]));
+
+    if (vx > 0x00FF)
         V[0xF] = 1;
-    }
-    else {
+    else
         V[0xF] = 0;
-    }
-    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x0F00) >> 8] + (V[(opcode & 0x00F0) >> 4]));
+    
+    V[(opcode & 0x0F00) >> 8] += V[(opcode & 0x00F0) >> 4];
 }
 
-void Chip8::SubtractVYVX() //8XY5 Sets VF to 0 if there is an underflow 
+void Chip8::SubtractVYVX() // 8XY5 Sets VF to 0 if there is an underflow 
 {
-  
-    if (V[(opcode & 0x0F00) >> 8] > (V[(opcode & 0x00F0) >> 4])) {
+    if (V[(opcode & 0x0F00) >> 8] > (V[(opcode & 0x00F0) >> 4]))
         V[0xF] = 1;
-    }
-    else {
+    else
         V[0xF] = 0;
-    }
-    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x0F00) >> 8] - (V[(opcode & 0x00F0) >> 4]));
+
+    V[(opcode & 0x0F00) >> 8] -= V[(opcode & 0x00F0) >> 4];
 }
 
-void Chip8::ShiftVXRight() //8XY6 Shifts VX to the right by 1 bit, if LSB is
+void Chip8::ShiftVXRight() // 8XY6 Shifts VX to the right by 1 bit, if LSB is
 {
-    if ((V[(opcode & 0x0F00) >> 8] % 2) > 0) { //this may need to change, unsure if flag logic runs before or after shift 
+    if ((V[(opcode & 0x0F00) >> 8] % 2) > 0) // this may need to change, unsure if flag logic runs before or after shift 
         V[0xF] = 1;
-    }
-    else {
+    else
         V[0xF] = 0;
-    }
+
     V[(opcode & 0x0F00)] >>= 1;
 }
 
 void Chip8::SetVXVYMinusVX() // 8XY7 Sets VF to 0 if there is an underflow
 {
-    if (V[(opcode & 0x0F00) >> 8] < (V[(opcode & 0x00F0) >> 4])) {
+    if (V[(opcode & 0x0F00) >> 8] < (V[(opcode & 0x00F0) >> 4]))
         V[0xF] = 1;
-    }
-    else {
+    else
         V[0xF] = 0;
-    }
-    V[(opcode & 0x0F00) >> 8] = ((V[(opcode & 0x00F0) >> 4]) - V[(opcode & 0x0F00) >> 8]);
+
+    V[(opcode & 0x00F0) >> 4] -= V[(opcode & 0x0F00) >> 8];
 }
 
 void Chip8::ShiftVXLeft() // 8XYE
 {
-    if ((V[(opcode & 0x0F00) >> 11]) > 0) { //this may need to change, unsure if flag logic runs before or after shift 
+    if ((V[(opcode & 0x0F00) >> 11]) > 0) // this may need to change, unsure if flag logic runs before or after shift 
         V[0xF] = 1;
-    }
-    else {
+    else
         V[0xF] = 0;
-    }
+
     V[(opcode & 0x0F00)] <<= 1;
 }
 

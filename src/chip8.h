@@ -1,7 +1,11 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
 #include <string>
+#include <unordered_map>
+
+using Instruction = std::function<void()>;
 
 class Chip8
 {
@@ -18,6 +22,7 @@ public:
     uint16_t opcode; // this is the current opcode we are executing
     uint8_t key[16]; // this is for storing our keycodes for input
     uint8_t fontset[80]; // this is for loading sprites we could probably load these in with a text file instead, we can also use raw string literals which we can pull in through separate files theyre pretty cool
+    std::unordered_map<uint16_t, Instruction> instructions;
 
     // constructor is cringe but its C++ feature
     Chip8();
@@ -26,8 +31,8 @@ public:
     // loop functions
     void EmulateCycle();
     void Fetch();
-    void Decode();
-    void Execute();
+    void DecodeAndExecute();
+    void Execute(uint16_t oc);
     void UpdateTimers();
 
     void LoadROM(const std::string& fileName);
