@@ -30,6 +30,40 @@ Chip8::Chip8()
     soundTimer = 0;
 
     // here we are going to add our instructions into the map
+    instructions[0x0000] = std::bind(&Chip8::CLS, this);
+    instructions[0x000E] = std::bind(&Chip8::CLS, this);
+    instructions[0x1000] = std::bind(&Chip8::CLS, this);
+    instructions[0x2000] = std::bind(&Chip8::CLS, this);
+    instructions[0x3000] = std::bind(&Chip8::CLS, this);
+    instructions[0x4000] = std::bind(&Chip8::CLS, this);
+    instructions[0x5000] = std::bind(&Chip8::CLS, this);
+    instructions[0x6000] = std::bind(&Chip8::CLS, this);
+    instructions[0x7000] = std::bind(&Chip8::CLS, this);
+    instructions[0x8000] = std::bind(&Chip8::CLS, this);
+    instructions[0x8001] = std::bind(&Chip8::CLS, this);
+    instructions[0x8002] = std::bind(&Chip8::CLS, this);
+    instructions[0x8003] = std::bind(&Chip8::CLS, this);
+    instructions[0x8004] = std::bind(&Chip8::CLS, this);
+    instructions[0x8005] = std::bind(&Chip8::CLS, this);
+    instructions[0x8006] = std::bind(&Chip8::CLS, this);
+    instructions[0x8007] = std::bind(&Chip8::CLS, this);
+    instructions[0x800E] = std::bind(&Chip8::CLS, this);
+    instructions[0x9000] = std::bind(&Chip8::CLS, this);
+    instructions[0xA000] = std::bind(&Chip8::CLS, this);
+    instructions[0xB000] = std::bind(&Chip8::CLS, this);
+    instructions[0xC000] = std::bind(&Chip8::CLS, this);
+    instructions[0xD000] = std::bind(&Chip8::CLS, this);
+    instructions[0xE09E] = std::bind(&Chip8::CLS, this);
+    instructions[0xE0A1] = std::bind(&Chip8::CLS, this);
+    instructions[0xF007] = std::bind(&Chip8::CLS, this);
+    instructions[0xF00A] = std::bind(&Chip8::CLS, this);
+    instructions[0xF015] = std::bind(&Chip8::CLS, this);
+    instructions[0xF018] = std::bind(&Chip8::CLS, this);
+    instructions[0xF01E] = std::bind(&Chip8::CLS, this);
+    instructions[0xF029] = std::bind(&Chip8::CLS, this);
+    instructions[0xF033] = std::bind(&Chip8::CLS, this);
+    instructions[0xF055] = std::bind(&Chip8::CLS, this);
+    instructions[0xF065] = std::bind(&Chip8::CLS, this);
 }
 
 Chip8::~Chip8()
