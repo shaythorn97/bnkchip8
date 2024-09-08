@@ -13,8 +13,9 @@ add_executable(main
 )
 
 ## Scripts
-add_custom_target(run-dbg
-    COMMAND ${CMAKE_SOURCE_DIR}/build/debug/main.exe
-    DEPENDS ${CMAKE_SOURCE_DIR}/build/debug/main.exe
+add_custom_target(run
+    COMMAND ${CMAKE_COMMAND} -E echo
+    COMMAND ${CMAKE_SOURCE_DIR}/build/main.exe
+    DEPENDS ${CMAKE_SOURCE_DIR}/build/main.exe
     USES_TERMINAL
 )

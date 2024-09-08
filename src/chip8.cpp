@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <ctime>
+#include <fstream>
 #include <iostream>
 
 Chip8::Chip8()
@@ -26,7 +27,29 @@ Chip8::Chip8()
         memory[i] = 0;
     
     // load fontset into memory
+    uint8_t defaultFontset[80] = 
+    {
+        0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+        0x20, 0x60, 0x20, 0x20, 0x70, // 1
+        0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+        0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+        0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+        0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+        0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+        0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+        0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+        0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+        0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+        0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+        0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+        0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+        0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+        0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+    };
      
+    for (int i = 0; i < 80; i++)
+        memory[i] = defaultFontset[i];
+
     // reset timers
     delayTimer = 0;
     soundTimer = 0;
@@ -80,12 +103,6 @@ void Chip8::EmulateCycle()
 {
     opcode = memory[pc] << 8 | memory[pc + 1];
 
-    // here we need to get the opcode instruction from the opcode
-    // this is going to be a bit hacky because we need to be able to nest if statements or something
-    //
-    // we can atleast separate our logic into here so we know which instruction to run, I think the switch statement method is pants
-    //
-    // we need to go in at the addresses 0x0000, 0x8000, 0xE000, 0xF000
     uint16_t key = opcode & 0xF000;
 
     if (key == 0x0000 || key == 0x8000)
@@ -100,8 +117,8 @@ void Chip8::EmulateCycle()
 
 void Chip8::Execute(uint16_t oc)
 {
-    if (instructions.contains(opcode))
-        instructions[opcode]();
+    if (instructions.contains(oc))
+        instructions[oc]();
     else
         std::cout << "Invalid opcode\n";
 }
@@ -119,6 +136,35 @@ void Chip8::UpdateTimers()
 
         soundTimer--;
     }
+}
+
+void Chip8::LoadROM(const std::string& fileName)
+{
+    std::ifstream file(fileName, std::ios::binary | std::ios::ate);
+
+    if (!file.is_open())
+    {
+        std::cout << "File could not be found\n";
+        return;
+    }
+
+    std::streamsize size = file.tellg();
+
+    if (size < 1 || size > 4096 - 0x200)
+    {
+        std::cout << "ROM size is invalid\n";
+        return;
+    }
+
+    file.seekg(0, std::ios::beg);
+
+    if (!file.read((char*)(memory + 0x200), size))
+    {
+        std::cout << "File could not be read\n";
+        return;
+    }
+
+    std::cout << "ROM '" << fileName << "' has been successfully loaded\n";
 }
 
 void Chip8::CLS() // 00E0
@@ -263,12 +309,6 @@ void Chip8::ShiftVXRight() // 8XY6 Shifts VX to the right by 1 bit, if LSB is 1
     else
         V[0xF] = 0;
 
-    // modulus is a very expensive operation so I changed it
-    //if ((V[(opcode & 0x0F00) >> 8] % 2) > 0) // this may need to change, unsure if flag logic runs before or after shift 
-    //    V[0xF] = 1;
-    //else
-    //    V[0xF] = 0;
-
     V[(opcode & 0x0F00) >> 8] >>= 1;
     pc += 2;
 }
@@ -342,12 +382,38 @@ void Chip8::SetVXRand() // CXKK
 
 void Chip8::DrawDisplay() // DXYN
 {
-    // this is drawing operation, leave this for now
+    uint8_t vx = V[(opcode & 0x0F00) >> 8];
+    uint8_t vy = V[(opcode & 0x00F0) >> 4];
+    uint8_t n = opcode & 0x000F;
+
+    V[0xF] = 0; 
+    
+    for (int i = 0; i < n; i++)
+    {
+        uint8_t pixel = memory[I + i];
+
+        for (int j = 0; j < 8; j++)
+        {
+            if ((pixel & (0x80 >> j)))
+            {
+                int x = (vx + j) % 64;
+                int y = (vy + i) % 32;
+
+                int index = x + (y * 64);
+
+                if (display[index] == 1)
+                    V[0xF] = 1;
+
+                display [index] ^= 1;
+            }
+        }
+    }
+
+    pc += 2;
 }
 
 void Chip8::SkipIfKeyPressed() // EX9E
 {
-    //if(V[(opcode & 0x0F00) >> 8] = key)
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
 
     if (keys[vx] > 0)
@@ -436,25 +502,33 @@ void Chip8::SetBCDVX() // FX33
     // 100 goes in I
     // 10 goes in I + 1
     // 1 goes in I + 2
-    //
 
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
 
-    memory[I] = vx;
-    memory[I + 1] = vx;
-    memory[I + 2] = vx;
-
+    memory[I] = vx / 100;
+    memory[I + 1] = (vx / 10) & 10;
+    memory[I + 2] = (vx % 100) % 10;
     pc += 2;
 }
 
 void Chip8::SaveVX() // FX55
 {
+    uint8_t vx = V[(opcode & 0x0F00) >> 8];
 
+    for (int i = 0; i < vx; i++)
+        memory[I + i] = V[i]; 
+
+    I += vx + 1;
     pc += 2;
 }
 
 void Chip8::LoadVX() // FX65
 {
+    uint8_t vx = V[(opcode & 0x0F00) >> 8];
 
+    for (int i = 0; i < vx; i++)
+        V[i] = memory[i + I]; 
+
+    I += vx + 1;
     pc += 2;
 }
