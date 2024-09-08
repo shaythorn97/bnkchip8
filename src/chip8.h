@@ -20,7 +20,7 @@ public:
     uint8_t stack[16]; // this is for storing our return addresses for when we enter functions
     uint16_t sp; // this is the stack pointer, it points to the current location in the stack
     uint16_t opcode; // this is the current opcode we are executing
-    uint8_t key[16]; // this is for storing our keycodes for input
+    uint8_t keys[16]; // this is for storing our keycodes for input
     uint8_t fontset[80]; // this is for loading sprites we could probably load these in with a text file instead, we can also use raw string literals which we can pull in through separate files theyre pretty cool
     std::unordered_map<uint16_t, Instruction> instructions;
 
@@ -30,8 +30,6 @@ public:
 
     // loop functions
     void EmulateCycle();
-    void Fetch();
-    void DecodeAndExecute();
     void Execute(uint16_t oc);
     void UpdateTimers();
 
