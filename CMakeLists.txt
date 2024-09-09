@@ -12,6 +12,10 @@ add_executable(main
     src/chip8.cpp
 )
 
+include_directories(
+    ${CMAKE_SOURCE_DIR}/external/bnkdraw/include
+)
+
 ## Scripts
 add_custom_target(run
     COMMAND ${CMAKE_COMMAND} -E echo

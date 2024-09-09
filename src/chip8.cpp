@@ -25,6 +25,9 @@ Chip8::Chip8()
 
     for (int i = 0; i < 4096; i++)
         memory[i] = 0;
+
+    for (int i = 0; i < 16; i++)
+        keys[i] = 0;
     
     // load fontset into memory
     uint8_t defaultFontset[80] = 
