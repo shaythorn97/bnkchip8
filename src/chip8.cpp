@@ -63,38 +63,38 @@ Chip8::Chip8()
     // here we are going to add our instructions into the map
     instructions[0x0000] = std::bind(&Chip8::CLS, this);  
     instructions[0x000E] = std::bind(&Chip8::RET, this);
-    instructions[0x1000] = std::bind(&Chip8::JPaddr, this);
-    instructions[0x2000] = std::bind(&Chip8::CALLaddr, this);
-    instructions[0x3000] = std::bind(&Chip8::SEVxByte, this);
-    instructions[0x4000] = std::bind(&Chip8::SNEVxByte, this);
-    instructions[0x5000] = std::bind(&Chip8::SEVxVy, this);
-    instructions[0x6000] = std::bind(&Chip8::SetVXNN, this);
-    instructions[0x7000] = std::bind(&Chip8::AddNNVX, this);
-    instructions[0x8000] = std::bind(&Chip8::SetVXVY, this);
-    instructions[0x8001] = std::bind(&Chip8::OR, this);
-    instructions[0x8002] = std::bind(&Chip8::AND, this);
-    instructions[0x8003] = std::bind(&Chip8::XOR, this);
-    instructions[0x8004] = std::bind(&Chip8::AddVYVX, this);
-    instructions[0x8005] = std::bind(&Chip8::SubtractVYVX, this);
-    instructions[0x8006] = std::bind(&Chip8::ShiftVXRight, this);
-    instructions[0x8007] = std::bind(&Chip8::SetVXVYMinusVX, this);
-    instructions[0x800E] = std::bind(&Chip8::ShiftVXLeft, this);
-    instructions[0x9000] = std::bind(&Chip8::SkipNotEqualVXVY, this);
-    instructions[0xA000] = std::bind(&Chip8::SetINN, this);
-    instructions[0xB000] = std::bind(&Chip8::JumpV0, this);
-    instructions[0xC000] = std::bind(&Chip8::SetVXRand, this);
-    instructions[0xD000] = std::bind(&Chip8::DrawDisplay, this);
-    instructions[0xE09E] = std::bind(&Chip8::SkipIfKeyPressed, this);
-    instructions[0xE0A1] = std::bind(&Chip8::SkipIfKeyReleased, this);
-    instructions[0xF007] = std::bind(&Chip8::SetVXDelayTimer, this);
-    instructions[0xF00A] = std::bind(&Chip8::WaitForKeyPress, this);
-    instructions[0xF015] = std::bind(&Chip8::SetDelayTimerVX, this);
-    instructions[0xF018] = std::bind(&Chip8::SetSoundTimerVX, this);
-    instructions[0xF01E] = std::bind(&Chip8::AddVXI, this);
-    instructions[0xF029] = std::bind(&Chip8::SetIVX, this);
-    instructions[0xF033] = std::bind(&Chip8::SetBCDVX, this);
-    instructions[0xF055] = std::bind(&Chip8::SaveVX, this);
-    instructions[0xF065] = std::bind(&Chip8::LoadVX, this);
+    instructions[0x1000] = std::bind(&Chip8::JPADDR, this);
+    instructions[0x2000] = std::bind(&Chip8::CALLADDR, this);
+    instructions[0x3000] = std::bind(&Chip8::SEVXBYTE, this);
+    instructions[0x4000] = std::bind(&Chip8::SNEVXBYTE, this);
+    instructions[0x5000] = std::bind(&Chip8::SEVXVY, this);
+    instructions[0x6000] = std::bind(&Chip8::LDVXBYTE, this);
+    instructions[0x7000] = std::bind(&Chip8::ADDVXBYTE, this);
+    instructions[0x8000] = std::bind(&Chip8::LDVXVY, this);
+    instructions[0x8001] = std::bind(&Chip8::ORVXVY, this);
+    instructions[0x8002] = std::bind(&Chip8::ANDVXVY, this);
+    instructions[0x8003] = std::bind(&Chip8::XORVXVY, this);
+    instructions[0x8004] = std::bind(&Chip8::AddVXVY, this);
+    instructions[0x8005] = std::bind(&Chip8::SUBVXVY, this);
+    instructions[0x8006] = std::bind(&Chip8::SHRVXVY, this);
+    instructions[0x8007] = std::bind(&Chip8::SUBNVXVY, this);
+    instructions[0x800E] = std::bind(&Chip8::SHLVXVY, this);
+    instructions[0x9000] = std::bind(&Chip8::SNEVXVY, this);
+    instructions[0xA000] = std::bind(&Chip8::LDIADDR, this);
+    instructions[0xB000] = std::bind(&Chip8::JPV0ADDR, this);
+    instructions[0xC000] = std::bind(&Chip8::RNDVXBYTE, this);
+    instructions[0xD000] = std::bind(&Chip8::DRWVXVYNIBBLE, this);
+    instructions[0xE09E] = std::bind(&Chip8::SKPVX, this);
+    instructions[0xE0A1] = std::bind(&Chip8::SKNPVX, this);
+    instructions[0xF007] = std::bind(&Chip8::LDVXDT, this);
+    instructions[0xF00A] = std::bind(&Chip8::LDVXK, this);
+    instructions[0xF015] = std::bind(&Chip8::LDDTVX, this);
+    instructions[0xF018] = std::bind(&Chip8::LDSTVX, this);
+    instructions[0xF01E] = std::bind(&Chip8::ADDIVX, this);
+    instructions[0xF029] = std::bind(&Chip8::LDFVX, this);
+    instructions[0xF033] = std::bind(&Chip8::LDBVX, this);
+    instructions[0xF055] = std::bind(&Chip8::LDIVX, this);
+    instructions[0xF065] = std::bind(&Chip8::LDVXI, this);
 }
 
 Chip8::~Chip8()
@@ -186,14 +186,14 @@ void Chip8::RET() // 00EE
     pc += 2;
 }
 
-void Chip8::JPaddr() // 1NNN
+void Chip8::JPADDR() // 1NNN
 {
     uint16_t nnn = opcode & 0x0FFF;
 
     pc = nnn;
 }
 
-void Chip8::CALLaddr() // 2NNN
+void Chip8::CALLADDR() // 2NNN
 {
     uint16_t nnn = opcode & 0x0FFF;
 
@@ -202,7 +202,7 @@ void Chip8::CALLaddr() // 2NNN
     pc = nnn;
 }
 
-void Chip8::SEVxByte() // 3XNN
+void Chip8::SEVXBYTE() // 3XNN
 {
     uint8_t nn = (opcode & 0x00FF);
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
@@ -213,7 +213,7 @@ void Chip8::SEVxByte() // 3XNN
         pc += 2;
 }
 
-void Chip8::SNEVxByte() // 4XNN
+void Chip8::SNEVXBYTE() // 4XNN
 {
     uint8_t nn = (opcode & 0x00FF);
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
@@ -224,7 +224,7 @@ void Chip8::SNEVxByte() // 4XNN
         pc += 2;
 }
 
-void Chip8::SEVxVy() // 5XY0
+void Chip8::SEVXVY() // 5XY0
 {
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
     uint8_t vy = V[(opcode & 0x00F0) >> 4];
@@ -235,7 +235,7 @@ void Chip8::SEVxVy() // 5XY0
         pc += 2;
 }
 
-void Chip8::SetVXNN() // 6XNN
+void Chip8::LDVXBYTE() // 6XNN
 {
     uint8_t nn = (opcode & 0x00FF);
 
@@ -243,7 +243,7 @@ void Chip8::SetVXNN() // 6XNN
     pc += 2;
 }
 
-void Chip8::AddNNVX() // 7XNN
+void Chip8::ADDVXBYTE() // 7XNN
 {
     uint8_t nn = (opcode & 0x00FF);
 
@@ -251,31 +251,31 @@ void Chip8::AddNNVX() // 7XNN
     pc += 2;
 }
 
-void Chip8::SetVXVY() // 8XY0
+void Chip8::LDVXVY() // 8XY0
 {
     V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x00F0) >> 4]);
     pc += 2;
 }
 
-void Chip8::OR() // 8XY1
+void Chip8::ORVXVY() // 8XY1
 {
     V[(opcode & 0x0F00) >> 8] |= V[(opcode & 0x00F0) >> 4];
     pc += 2;
 }
 
-void Chip8::AND() // 8XY2
+void Chip8::ANDVXVY() // 8XY2
 {
     V[(opcode & 0x0F00) >> 8] &= V[(opcode & 0x00F0) >> 4];
     pc += 2;
 }
 
-void Chip8::XOR() // 8XY3
+void Chip8::XORVXVY() // 8XY3
 {
     V[(opcode & 0x0F00) >> 8] ^=  V[(opcode & 0x00F0) >> 4];
     pc += 2;
 }
 
-void Chip8::AddVYVX() // 8XY4 Sets VF to 1 if there is an overflow 
+void Chip8::AddVXVY() // 8XY4 Sets VF to 1 if there is an overflow 
 {
     uint8_t sum = V[(opcode & 0x0F00) >> 8] + V[(opcode & 0x00F0) >> 4];
 
@@ -288,7 +288,7 @@ void Chip8::AddVYVX() // 8XY4 Sets VF to 1 if there is an overflow
     pc += 2;
 }
 
-void Chip8::SubtractVYVX() // 8XY5 Sets VF to 0 if there is an underflow 
+void Chip8::SUBVXVY() // 8XY5 Sets VF to 0 if there is an underflow 
 {
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
     uint8_t vy = V[(opcode & 0x00F0) >> 4];
@@ -302,7 +302,7 @@ void Chip8::SubtractVYVX() // 8XY5 Sets VF to 0 if there is an underflow
     pc += 2;
 }
 
-void Chip8::ShiftVXRight() // 8XY6 Shifts VX to the right by 1 bit, if LSB is 1
+void Chip8::SHRVXVY() // 8XY6 Shifts VX to the right by 1 bit, if LSB is 1
 {
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
 
@@ -316,7 +316,7 @@ void Chip8::ShiftVXRight() // 8XY6 Shifts VX to the right by 1 bit, if LSB is 1
     pc += 2;
 }
 
-void Chip8::SetVXVYMinusVX() // 8XY7 Sets VF to 0 if there is an underflow
+void Chip8::SUBNVXVY() // 8XY7 Sets VF to 0 if there is an underflow
 {
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
     uint8_t vy = V[(opcode & 0x00F0) >> 4];
@@ -330,7 +330,7 @@ void Chip8::SetVXVYMinusVX() // 8XY7 Sets VF to 0 if there is an underflow
     pc += 2;
 }
 
-void Chip8::ShiftVXLeft() // 8XYE, we check MSB
+void Chip8::SHLVXVY() // 8XYE, we check MSB
 {
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
 
@@ -346,7 +346,7 @@ void Chip8::ShiftVXLeft() // 8XYE, we check MSB
     pc += 2;
 }
 
-void Chip8::SkipNotEqualVXVY() // 9XY0
+void Chip8::SNEVXVY() // 9XY0
 {
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
     uint8_t vy = V[(opcode & 0x00F0) >> 4];
@@ -357,7 +357,7 @@ void Chip8::SkipNotEqualVXVY() // 9XY0
         pc += 2;
 }
 
-void Chip8::SetINN() // ANNN
+void Chip8::LDIADDR() // ANNN
 {
     uint16_t nnn = opcode & 0x0FFF;
 
@@ -365,7 +365,7 @@ void Chip8::SetINN() // ANNN
     pc += 2; 
 }
 
-void Chip8::JumpV0() // BNNN
+void Chip8::JPV0ADDR() // BNNN
 {
     uint16_t nnn = opcode & 0x0FFF;
     uint16_t loc = nnn + V[0];
@@ -374,7 +374,7 @@ void Chip8::JumpV0() // BNNN
     pc += 2;
 }
 
-void Chip8::SetVXRand() // CXKK
+void Chip8::RNDVXBYTE() // CXKK
 {
     // random number between 0 and 255
     uint8_t rnd = (rand() % 0xFF) & 0x00FF; 
@@ -383,7 +383,7 @@ void Chip8::SetVXRand() // CXKK
     pc += 2;
 }
 
-void Chip8::DrawDisplay() // DXYN
+void Chip8::DRWVXVYNIBBLE() // DXYN
 {
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
     uint8_t vy = V[(opcode & 0x00F0) >> 4];
@@ -415,7 +415,7 @@ void Chip8::DrawDisplay() // DXYN
     pc += 2;
 }
 
-void Chip8::SkipIfKeyPressed() // EX9E
+void Chip8::SKPVX() // EX9E
 {
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
 
@@ -425,7 +425,7 @@ void Chip8::SkipIfKeyPressed() // EX9E
         pc += 2;
 }
 
-void Chip8::SkipIfKeyReleased() // EXA1
+void Chip8::SKNPVX() // EXA1
 {
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
 
@@ -435,13 +435,13 @@ void Chip8::SkipIfKeyReleased() // EXA1
         pc += 2;
 }
 
-void Chip8::SetVXDelayTimer() // FX07
+void Chip8::LDVXDT() // FX07
 {
     V[(opcode & 0x0F00) >> 8] = delayTimer;
     pc += 2;
 }
 
-void Chip8::WaitForKeyPress() // FX0A
+void Chip8::LDVXK() // FX0A
 {
     bool isKeyPressed = false;
 
@@ -461,7 +461,7 @@ void Chip8::WaitForKeyPress() // FX0A
     pc += 2;
 }
 
-void Chip8::SetDelayTimerVX() // FX15
+void Chip8::LDDTVX() // FX15
 {
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
 
@@ -469,7 +469,7 @@ void Chip8::SetDelayTimerVX() // FX15
     pc += 2;
 }
 
-void Chip8::SetSoundTimerVX() // FX18  
+void Chip8::LDSTVX() // FX18  
 {
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
 
@@ -477,7 +477,7 @@ void Chip8::SetSoundTimerVX() // FX18
     pc += 2;
 }
 
-void Chip8::AddVXI() // FX1E
+void Chip8::ADDIVX() // FX1E
 {
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
 
@@ -490,7 +490,7 @@ void Chip8::AddVXI() // FX1E
     pc += 2;
 }
 
-void Chip8::SetIVX() // FX29
+void Chip8::LDFVX() // FX29
 {
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
 
@@ -498,7 +498,7 @@ void Chip8::SetIVX() // FX29
     pc += 2;
 }
 
-void Chip8::SetBCDVX() // FX33
+void Chip8::LDBVX() // FX33
 {
     // this is a pretty hard one, it needs to store some memory in a couple places
     // we need to split it into 3 parts
@@ -514,7 +514,7 @@ void Chip8::SetBCDVX() // FX33
     pc += 2;
 }
 
-void Chip8::SaveVX() // FX55
+void Chip8::LDIVX() // FX55
 {
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
 
@@ -525,7 +525,7 @@ void Chip8::SaveVX() // FX55
     pc += 2;
 }
 
-void Chip8::LoadVX() // FX65
+void Chip8::LDVXI() // FX65
 {
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
 

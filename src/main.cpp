@@ -1,7 +1,6 @@
 #include "chip8.h"
 #include "renderer.h"
 
-// need to write a renderer quick, fuck dsa
 
 int main()
 {
