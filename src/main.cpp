@@ -10,11 +10,17 @@ int main()
 
     chip8.LoadROM("roms/test.ch8");
 
-    Renderer::Init();
+    Renderer::Init(window.width, window.height);
 
     while (window.IsRunning())
     {
-        chip8.EmulateCycle();
+        //chip8.EmulateCycle();
+
+        Renderer::BeginBatch();
+
+        Renderer::DrawQuad(0.0f, 0.0f, 20.0f, 20.0f, 1.0f, 0.0f, 0.0, 1.0f);
+
+        Renderer::EndBatch();
 
         window.Update();
     }

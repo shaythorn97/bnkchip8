@@ -5,6 +5,31 @@
 // we need vertex buffer, index buffer, vertex array, camera, shaders
 class GLFWwindow;
 
+struct Vec3
+{
+    float x, y, z;
+};
+
+struct Vec4
+{
+    float x, y, z, w;
+};
+
+struct Mat4
+{
+    Vec4 mat[4];
+
+    Vec4& operator[](int index)
+    {
+        return mat[index];
+    }
+
+    const Vec4& operator[](int index) const
+    {
+        return mat[index];
+    }
+};
+
 enum class Key
 {
     KEY_1,
@@ -17,6 +42,7 @@ class Window
 {
 public:
     GLFWwindow* rawWindow;
+    int width, height;
 
     Window(int width, int height, const std::string& title);
     ~Window();
@@ -35,7 +61,7 @@ public:
 class Renderer
 {
 public:
-    static void Init();
+    static void Init(int width, int height);
     static void Shutdown();
 
     static void BeginBatch();
