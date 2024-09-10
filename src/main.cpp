@@ -12,8 +12,7 @@ int main()
 
     while (window.IsRunning())
     {
-        if (Input::IsKeyPressed(window, Key::KEY_1))
-            chip8.EmulateCycle();
+        chip8.EmulateCycle();
 
         window.Update();
     }
