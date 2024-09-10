@@ -1,5 +1,5 @@
 # bnkchip8
-Chip8 emulator in preparation for gameboy emulator
+Chip8 emulator to remember how to do it again in preparation for gameboy emulator
 
 Need to say some stuff about what chip 8 is and how it works
 
