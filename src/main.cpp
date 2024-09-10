@@ -1,8 +1,6 @@
 #include "chip8.h"
 #include "renderer.h"
 
-// need to write a renderer quick
-
 int main()
 {
     Window window(640, 320, "Chip8");
