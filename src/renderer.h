@@ -42,7 +42,7 @@ public:
     static void EndBatch();
     static void Flush();
 
-    static void Draw();
+    static void DrawElements();
 
     static void DrawQuad(float x, float y, int width, int height, float r, float g, float b, float a); 
 };
