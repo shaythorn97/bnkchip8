@@ -20,6 +20,8 @@ Window::Window(int width, int height, const std::string& title)
 
     // add the context
     glfwMakeContextCurrent(rawWindow);
+
+    glfwSwapInterval(1);
 }
 
 Window::~Window()

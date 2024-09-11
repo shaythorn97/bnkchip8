@@ -4,6 +4,8 @@
 #include <ctime>
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <iomanip>
 
 Chip8::Chip8()
 {
@@ -106,6 +108,8 @@ void Chip8::EmulateCycle()
 {
     opcode = memory[pc] << 8 | memory[pc + 1];
 
+    std::cout << "Opcode: 0x" << std::hex << std::setw(4) << std::setfill('0') << opcode << "\n";
+
     uint16_t key = opcode & 0xF000;
 
     if (key == 0x0000 || key == 0x8000)
@@ -141,14 +145,14 @@ void Chip8::UpdateTimers()
     }
 }
 
-void Chip8::LoadROM(const std::string& fileName)
+bool Chip8::LoadROM(const std::string& fileName)
 {
     std::ifstream file(fileName, std::ios::binary | std::ios::ate);
 
     if (!file.is_open())
     {
         std::cout << "File could not be found\n";
-        return;
+        return false;
     }
 
     std::streamsize size = file.tellg();
@@ -156,7 +160,7 @@ void Chip8::LoadROM(const std::string& fileName)
     if (size < 1 || size > 4096 - 0x200)
     {
         std::cout << "ROM size is invalid\n";
-        return;
+        return false;
     }
 
     file.seekg(0, std::ios::beg);
@@ -164,10 +168,11 @@ void Chip8::LoadROM(const std::string& fileName)
     if (!file.read((char*)(memory + 0x200), size))
     {
         std::cout << "File could not be read\n";
-        return;
+        return false;
     }
 
     std::cout << "ROM '" << fileName << "' has been successfully loaded\n";
+    return true;
 }
 
 void Chip8::CLS() // 00E0
@@ -411,6 +416,8 @@ void Chip8::DRWVXVYNIBBLE() // DXYN
             }
         }
     }
+
+    drawFlag = true;
 
     pc += 2;
 }
