@@ -180,6 +180,8 @@ void Chip8::CLS() // 00E0
     // clear screen
     for (int i = 0; i < 64 * 32; i++)
         display[i] = 0;
+
+    drawFlag = true;
     
     pc += 2;
 }
@@ -516,7 +518,7 @@ void Chip8::LDBVX() // FX33
     uint8_t vx = V[(opcode & 0x0F00) >> 8];
 
     memory[I] = vx / 100;
-    memory[I + 1] = (vx / 10) & 10;
+    memory[I + 1] = (vx / 10) % 10;
     memory[I + 2] = (vx % 100) % 10;
     pc += 2;
 }

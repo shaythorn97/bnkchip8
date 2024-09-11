@@ -6,7 +6,7 @@ int main()
     Window window(640, 320, "Chip8");
     Chip8 chip8;
 
-    if (!chip8.LoadROM("roms/pong.ch8"))
+    if (!chip8.LoadROM("roms/ibm.ch8"))
         return -1;
 
     Renderer::Init(window.width, window.height);
@@ -19,15 +19,20 @@ int main()
 
         if (chip8.drawFlag)
         {
-            for (int i = 0; i < 64; i++)
+            for (int i = 0; i < 64 * 32; i++)
             {
-                for (int j = 0; j < 32; j++)
-                {
-                    if (chip8.display[i * j] > 0)
-                        Renderer::DrawQuad(0 + (10.0f * i), 0 + (10.0f * j), 10, 10, 1.0f, 1.0f, 1.0f, 1.0f);
-                }
+                int row = i / 64;
+                int col = i % 64;
+
+                int pixel = chip8.display[i];
+
+                if (pixel > 0)
+                    Renderer::DrawQuad(col * 10, row * 10, 10, 10, 1.0f, 1.0f, 1.0f, 1.0f);
             }
         }
+
+        //Renderer::DrawQuad(0, 0, 10, 10, 1.0f, 1.0f, 1.0f, 1.0f);
+        //Renderer::DrawQuad(50, 50, 10, 10, 1.0f, 1.0f, 1.0f, 1.0f);
 
         chip8.drawFlag = false;
 
