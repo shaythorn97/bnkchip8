@@ -7,7 +7,48 @@
 #include <string>
 #include <iomanip>
 
-Chip8::Chip8()
+ROM::ROM()
+{
+
+}
+
+ROM::~ROM()
+{}
+
+bool ROM::Load(const std::string& fileName)
+{
+    std::ifstream file(fileName, std::ios::binary | std::ios::ate);
+
+    if (!file.is_open())
+    {
+        std::cout << "File could not be found\n";
+        return false;
+    }
+
+    std::streamsize size = file.tellg();
+
+    if (size < 1 || size > 4096 - 0x200)
+    {
+        std::cout << "ROM size is invalid\n";
+        return false;
+    }
+
+    this->size = size;
+
+    file.seekg(0, std::ios::beg);
+
+    if (!file.read((char*)(data), size))
+    {
+        std::cout << "File could not be read\n";
+        return false;
+    }
+
+    std::cout << "ROM '" << fileName << "' has been successfully loaded\n";
+    return true;
+}
+
+Chip8::Chip8(ROM& rom)
+    : rom(&rom)
 {
     // here we need to set our default values, we start at address 0x200
     pc = 0x200;
@@ -54,6 +95,10 @@ Chip8::Chip8()
      
     for (int i = 0; i < 80; i++)
         memory[i] = defaultFontset[i];
+
+    // load rom
+    for (int i = 0; i < rom.size; i++)
+        memory[0x200 + i] = rom.data[i];
 
     // reset timers
     delayTimer = 0;
@@ -145,35 +190,6 @@ void Chip8::UpdateTimers()
     }
 }
 
-bool Chip8::LoadROM(const std::string& fileName)
-{
-    std::ifstream file(fileName, std::ios::binary | std::ios::ate);
-
-    if (!file.is_open())
-    {
-        std::cout << "File could not be found\n";
-        return false;
-    }
-
-    std::streamsize size = file.tellg();
-
-    if (size < 1 || size > 4096 - 0x200)
-    {
-        std::cout << "ROM size is invalid\n";
-        return false;
-    }
-
-    file.seekg(0, std::ios::beg);
-
-    if (!file.read((char*)(memory + 0x200), size))
-    {
-        std::cout << "File could not be read\n";
-        return false;
-    }
-
-    std::cout << "ROM '" << fileName << "' has been successfully loaded\n";
-    return true;
-}
 
 void Chip8::CLS() // 00E0
 {
@@ -190,7 +206,7 @@ void Chip8::RET() // 00EE
 {
     sp--;
     pc = stack[sp];
-    pc += 2;
+    //pc += 2;
 }
 
 void Chip8::JPADDR() // 1NNN

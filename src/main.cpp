@@ -1,13 +1,23 @@
 #include "chip8.h"
 #include "renderer.h"
+#include <iostream>
+#include <iomanip>
 
 int main()
 {
     Window window(640, 320, "Chip8");
-    Chip8 chip8;
+    ROM rom;
 
-    if (!chip8.LoadROM("roms/ibm.ch8"))
+    if (!rom.Load("roms/airplane.ch8"))
         return -1;
+
+    Chip8 chip8(rom);
+
+    for (int i = 0x200; i < 0x200 + rom.size; i++)
+    {
+        std::cout << "Address: 0x" << std::hex << std::setw(3) << std::setfill('0') << i
+            << " Instruction: 0x" << std::hex << std::setw(2) << std::setfill('0') << (int)chip8.memory[i] << "\n";
+    }
 
     Renderer::Init(window.width, window.height);
 
@@ -30,9 +40,6 @@ int main()
                     Renderer::DrawQuad(col * 10, row * 10, 10, 10, 1.0f, 1.0f, 1.0f, 1.0f);
             }
         }
-
-        //Renderer::DrawQuad(0, 0, 10, 10, 1.0f, 1.0f, 1.0f, 1.0f);
-        //Renderer::DrawQuad(50, 50, 10, 10, 1.0f, 1.0f, 1.0f, 1.0f);
 
         chip8.drawFlag = false;
 

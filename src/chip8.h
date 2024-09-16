@@ -5,23 +5,37 @@
 #include <string>
 #include <unordered_map>
 
+static constexpr int CHIP8_MEMORY_SIZE = 4096;
+static constexpr int CHIP8_DISPLAY_SIZE = 64 * 32;
+
 using Instruction = std::function<void()>;
+
+class ROM
+{
+public:
+    uint8_t data[CHIP8_MEMORY_SIZE - 0x200];
+    int size;
+
+    ROM();
+    ~ROM();
+
+    bool Load(const std::string& fileName);
+};
 
 class Chip8
 {
 public:
-    uint8_t display[64 * 32]; // this is our display
+    uint8_t memory[CHIP8_MEMORY_SIZE]; // this is our ram
+    uint8_t display[CHIP8_DISPLAY_SIZE]; // this is our display
     bool drawFlag = false;
-    uint8_t memory[4096]; // this is our ram
+    ROM* rom;
                               
     // constructor is cringe but its C++ feature
-    Chip8();
+    Chip8(ROM& rom);
     ~Chip8();
 
     // loop functions
     void EmulateCycle();
-
-    bool LoadROM(const std::string& fileName);
 private:
     uint8_t V[16]; // these are our registers
     uint8_t I; // this is the index register
