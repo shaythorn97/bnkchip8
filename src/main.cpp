@@ -50,10 +50,12 @@ int main()
                 int row = i / 64;
                 int col = i % 64;
 
+                int flip = 31 - row;
+
                 int pixel = chip8.display[i];
 
                 if (pixel > 0)
-                    Renderer::DrawQuad(col * 10, row * 10, 10, 10, 1.0f, 1.0f, 1.0f, 1.0f);
+                    Renderer::DrawQuad(col * 10, flip * 10, 10, 10, 1.0f, 1.0f, 1.0f, 1.0f);
             }
         }
 

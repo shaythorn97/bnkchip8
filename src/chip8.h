@@ -19,6 +19,7 @@ public:
     bool Load(const std::string& fileName);
 };
 
+// we could maybe start adding in getters and setters so the code is 'cleaner'
 class Chip8
 {
 public:
@@ -28,11 +29,11 @@ public:
     ROM* rom;
     int num = 1;
                               
-    // constructor is cringe but its C++ feature
     Chip8(ROM& rom);
     ~Chip8();
 
-    // loop functions
+    void ChangeROM(ROM& rom);
+
     void EmulateCycle();
 private:
     uint8_t V[16]; // these are our registers
