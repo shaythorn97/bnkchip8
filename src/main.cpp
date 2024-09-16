@@ -1,23 +1,39 @@
-#include "chip8.h"
-#include "renderer.h"
 #include <iostream>
 #include <iomanip>
+#include <fstream>
+
+#include "chip8.h"
+#include "renderer.h"
 
 int main()
 {
     Window window(640, 320, "Chip8");
     ROM rom;
 
-    if (!rom.Load("roms/airplane.ch8"))
+    if (!rom.Load("roms/test.ch8"))
         return -1;
 
     Chip8 chip8(rom);
 
-    for (int i = 0x200; i < 0x200 + rom.size; i++)
+    int counter = 2;
+
+    std::ofstream file;
+    file.open("opcodes.csv");
+
+    for (int i = 0x200; i < 0x200 + rom.size; i += 2)
     {
-        std::cout << "Address: 0x" << std::hex << std::setw(3) << std::setfill('0') << i
-            << " Instruction: 0x" << std::hex << std::setw(2) << std::setfill('0') << (int)chip8.memory[i] << "\n";
+        std::cout << std::dec << counter << ": " << "Address: 0x" << std::hex << std::setw(3) << std::setfill('0') << i
+            << " Instruction: 0x" << std::hex << std::setw(2) << std::setfill('0') << (int)chip8.memory[i]
+            << std::hex << std::setw(2) << std::setfill('0') << (int)chip8.memory[i + 1] << "\n";
+
+        // write to csv
+        if (file.is_open())
+            file << "0x" << std::hex << std::setw(2) << std::setfill('0') << (int)chip8.memory[i] << std::hex << std::setw(2) << std::setfill('0') << (int)chip8.memory[i + 1] << "\n";
+
+        counter++;
     }
+
+    file.close();
 
     Renderer::Init(window.width, window.height);
 

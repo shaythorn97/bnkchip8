@@ -16,9 +16,6 @@ public:
     uint8_t data[CHIP8_MEMORY_SIZE - 0x200];
     int size;
 
-    ROM();
-    ~ROM();
-
     bool Load(const std::string& fileName);
 };
 
@@ -29,6 +26,7 @@ public:
     uint8_t display[CHIP8_DISPLAY_SIZE]; // this is our display
     bool drawFlag = false;
     ROM* rom;
+    int num = 1;
                               
     // constructor is cringe but its C++ feature
     Chip8(ROM& rom);
@@ -42,8 +40,8 @@ private:
     uint16_t pc; // this is the program counter
     uint8_t delayTimer; // this is for timing the events in the game
     uint8_t soundTimer; // this is for sound but we are probs not going to use it because I cant be assed
-    uint8_t stack[16]; // this is for storing our return addresses for when we enter functions
-    uint16_t sp; // this is the stack pointer, it points to the current location in the stack
+    uint16_t stack[16]; // this is for storing our return addresses for when we enter functions
+    uint8_t sp; // this is the stack pointer, it points to the current location in the stack
     uint16_t opcode; // this is the current opcode we are executing
     uint8_t keys[16]; // this is for storing our keycodes for input
     std::unordered_map<uint16_t, Instruction> instructions;

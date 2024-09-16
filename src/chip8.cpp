@@ -6,14 +6,7 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
-
-ROM::ROM()
-{
-
-}
-
-ROM::~ROM()
-{}
+#include <sstream>
 
 bool ROM::Load(const std::string& fileName)
 {
@@ -153,7 +146,15 @@ void Chip8::EmulateCycle()
 {
     opcode = memory[pc] << 8 | memory[pc + 1];
 
-    std::cout << "Opcode: 0x" << std::hex << std::setw(4) << std::setfill('0') << opcode << "\n";
+    std::stringstream ss;
+
+    ss << std::dec << num << ": " << "Opcode: 0x" << std::hex << std::setw(4) << std::setfill('0') << opcode << "\n";
+    num++;
+
+    std::cout << ss.str();
+
+    if (opcode == 0xf010)
+        std::cout << "hello";
 
     uint16_t key = opcode & 0xF000;
 
@@ -190,7 +191,6 @@ void Chip8::UpdateTimers()
     }
 }
 
-
 void Chip8::CLS() // 00E0
 {
     // clear screen
@@ -206,7 +206,6 @@ void Chip8::RET() // 00EE
 {
     sp--;
     pc = stack[sp];
-    //pc += 2;
 }
 
 void Chip8::JPADDR() // 1NNN
@@ -307,7 +306,7 @@ void Chip8::AddVXVY() // 8XY4 Sets VF to 1 if there is an overflow
     else
         V[0xF] = 0;
     
-    V[(opcode & 0x0F00) >> 8] += V[(opcode & 0x00F0) >> 4];
+    V[(opcode & 0x0F00) >> 8] = sum;
     pc += 2;
 }
 
@@ -349,7 +348,7 @@ void Chip8::SUBNVXVY() // 8XY7 Sets VF to 0 if there is an underflow
     else
         V[0xF] = 0;
 
-    V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x00F0) >> 4] - V[(opcode & 0x0F00) >> 8];
+    V[(opcode & 0x0F00) >> 8] = vy - vx;
     pc += 2;
 }
 
@@ -394,13 +393,12 @@ void Chip8::JPV0ADDR() // BNNN
     uint16_t loc = nnn + V[0];
 
     pc = loc;
-    pc += 2;
 }
 
 void Chip8::RNDVXBYTE() // CXKK
 {
     // random number between 0 and 255
-    uint8_t rnd = (rand() % 0xFF) & 0x00FF; 
+    uint8_t rnd = rand() & 0x00FF; 
 
     V[(opcode & 0x0F00) >> 8] = rnd;
     pc += 2;
@@ -541,22 +539,24 @@ void Chip8::LDBVX() // FX33
 
 void Chip8::LDIVX() // FX55
 {
-    uint8_t vx = V[(opcode & 0x0F00) >> 8];
+    //uint8_t vx = V[(opcode & 0x0F00) >> 8];
+    uint8_t x = (opcode & 0x0F00) >> 8;
 
-    for (int i = 0; i < vx; i++)
+    for (int i = 0; i <= x; i++)
         memory[I + i] = V[i]; 
 
-    I += vx + 1;
+    I += x + 1;
     pc += 2;
 }
 
 void Chip8::LDVXI() // FX65
 {
-    uint8_t vx = V[(opcode & 0x0F00) >> 8];
+    //uint8_t vx = V[(opcode & 0x0F00) >> 8];
+    uint8_t x = (opcode & 0x0F00) >> 8;
 
-    for (int i = 0; i < vx; i++)
+    for (int i = 0; i <= x; i++)
         V[i] = memory[i + I]; 
 
-    I += vx + 1;
+    I += x + 1;
     pc += 2;
 }
