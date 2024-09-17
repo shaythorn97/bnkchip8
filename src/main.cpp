@@ -43,8 +43,8 @@ int main()
 
         Renderer::BeginBatch();
 
-        if (chip8.drawFlag)
-        {
+        //if (chip8.drawFlag)
+        //{
             for (int i = 0; i < 64 * 32; i++)
             {
                 int row = i / 64;
@@ -55,9 +55,9 @@ int main()
                 int pixel = chip8.display[i];
 
                 if (pixel > 0)
-                    Renderer::DrawQuad(col * 10, flip * 10, 10, 10, 1.0f, 1.0f, 1.0f, 1.0f);
+                    Renderer::DrawQuad(col * 10, flip * 10, 10, 10, 0.0f, 1.0f, 0.0f, 1.0f);
             }
-        }
+        //}
 
         chip8.drawFlag = false;
 

@@ -153,9 +153,6 @@ void Chip8::EmulateCycle()
 
     std::cout << ss.str();
 
-    if (opcode == 0xf010)
-        std::cout << "hello";
-
     uint16_t key = opcode & 0xF000;
 
     if (key == 0x0000 || key == 0x8000)
