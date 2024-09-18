@@ -1,9 +1,4 @@
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-
 #include "chip8.h"
-#include "renderer.h"
 
 int main()
 {
