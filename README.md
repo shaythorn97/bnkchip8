@@ -2,6 +2,10 @@
 Simple Chip8 emulator written in C++.
 picture 1
 picture 2
+
+### What is Chip8
+Chip8 is emulator yes.
+
 ### Building the project
 In order to build this project you must have these tools installed:
 - **C++ compiler** - Any compiler will work however on Windows I would recommend using MSVC.
@@ -55,4 +59,12 @@ int main()
 ```
 
 If you want to use your own ROMs all you need to do is just add them into the `/roms` directory and then change the file name inside the code and then run the project. A list of Chip8 ROMs can be found in this repo here:
+
 `https://github.com/kripod/chip8-roms`
+
+### Future plans
+- Finish the input system, should probably use an event based system.
+- Need to add some basic audio for the beep sound played when the sound timer reaches 0. OpenAL should be fine to implement this.
+- Add some main function arguments so you can run ROMs from the command line.
+- Maybe add a simple GUI with ImGui so ROMs can be changed at runtime.
+- Better logger or a dissasembler that shows the instructions in a clearer way.
