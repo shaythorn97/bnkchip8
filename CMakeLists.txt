@@ -32,4 +32,5 @@ add_custom_target(run
     COMMAND ${CMAKE_SOURCE_DIR}/build/main.exe
     DEPENDS ${CMAKE_SOURCE_DIR}/build/main.exe
     USES_TERMINAL
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     )

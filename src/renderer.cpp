@@ -20,6 +20,8 @@ Window::Window(int width, int height, const std::string& title)
 
     // add the context
     glfwMakeContextCurrent(rawWindow);
+
+    glfwSwapInterval(1);
 }
 
 Window::~Window()
@@ -42,14 +44,14 @@ void Window::Update()
     glfwSwapBuffers(rawWindow);
 }
 
-bool Input::IsKeyPressed(Window window, Key key)
+bool Input::IsKeyPressed(const Window& window, Key key)
 {
     int state = glfwGetKey(window.rawWindow, (int)key);
 
     return state == GLFW_PRESS ? true : false;
 }
 
-bool Input::IsKeyReleased(Window window, Key key)
+bool Input::IsKeyReleased(const Window& window, Key key)
 {
     int state = glfwGetKey(window.rawWindow, (int)key);
 
@@ -198,6 +200,8 @@ void Renderer::Init(int width, int height)
         indices[i + 3] = index;
         indices[i + 4] = index + 2;
         indices[i + 5] = index + 3;
+
+        index += 4;
     }
 
     glNamedBufferSubData(rendererData.ibo, 0, MAX_INDICES * sizeof(GLuint), indices); 
