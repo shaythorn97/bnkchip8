@@ -10,7 +10,7 @@ int main()
     Window window(640, 320, "Chip8");
     ROM rom;
 
-    if (!rom.Load("roms/test.ch8"))
+    if (!rom.Load("roms/test2.ch8"))
         return -1;
 
     Chip8 chip8(rom);
