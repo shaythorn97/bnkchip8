@@ -2,7 +2,7 @@
 
 int main()
 {
-    ROM rom("test.ch8");
+    ROM rom("pong.ch8");
     Chip8 chip8(rom);
 
     while (chip8.IsRunning())
