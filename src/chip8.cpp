@@ -7,7 +7,6 @@
 #include <string>
 #include <iomanip>
 #include <sstream>
-#include "renderer.h"
 
 ROM::ROM(const std::string& fileName)
 {
