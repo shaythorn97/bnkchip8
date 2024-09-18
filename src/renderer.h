@@ -32,10 +32,17 @@ struct Mat4
 
 enum class Key
 {
-    KEY_1,
-    KEY_2,
-    KEY_3,
-    KEY_4
+    KEY_1 = 49,
+    KEY_2 = 50,
+    KEY_3 = 51,
+    KEY_4 = 52,
+
+    KEY_Q = 81,
+    KEY_W = 87,
+    KEY_E = 69,
+    KEY_R = 82,
+
+    KEY_ESC = 256,
 };
 
 class Window
@@ -54,8 +61,8 @@ public:
 class Input
 {
 public:
-    static bool IsKeyPressed(Window window, Key key);
-    static bool IsKeyReleased(Window window, Key key);
+    static bool IsKeyPressed(const Window& window, Key key);
+    static bool IsKeyReleased(const Window& window, Key key);
 };
 
 class Renderer

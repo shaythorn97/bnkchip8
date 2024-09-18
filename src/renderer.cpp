@@ -44,14 +44,14 @@ void Window::Update()
     glfwSwapBuffers(rawWindow);
 }
 
-bool Input::IsKeyPressed(Window window, Key key)
+bool Input::IsKeyPressed(const Window& window, Key key)
 {
     int state = glfwGetKey(window.rawWindow, (int)key);
 
     return state == GLFW_PRESS ? true : false;
 }
 
-bool Input::IsKeyReleased(Window window, Key key)
+bool Input::IsKeyReleased(const Window& window, Key key)
 {
     int state = glfwGetKey(window.rawWindow, (int)key);
 

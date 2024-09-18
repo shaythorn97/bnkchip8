@@ -114,7 +114,7 @@ Chip8::Chip8(ROM& rom)
     instructions[0x8001] = std::bind(&Chip8::ORVXVY, this);
     instructions[0x8002] = std::bind(&Chip8::ANDVXVY, this);
     instructions[0x8003] = std::bind(&Chip8::XORVXVY, this);
-    instructions[0x8004] = std::bind(&Chip8::AddVXVY, this);
+    instructions[0x8004] = std::bind(&Chip8::ADDVXVY, this);
     instructions[0x8005] = std::bind(&Chip8::SUBVXVY, this);
     instructions[0x8006] = std::bind(&Chip8::SHRVXVY, this);
     instructions[0x8007] = std::bind(&Chip8::SUBNVXVY, this);
@@ -194,8 +194,6 @@ void Chip8::CLS() // 00E0
     for (int i = 0; i < 64 * 32; i++)
         display[i] = 0;
 
-    drawFlag = true;
-    
     pc += 2;
 }
 
@@ -203,6 +201,8 @@ void Chip8::RET() // 00EE
 {
     sp--;
     pc = stack[sp];
+
+    pc += 2;
 }
 
 void Chip8::JPADDR() // 1NNN
@@ -223,10 +223,10 @@ void Chip8::CALLADDR() // 2NNN
 
 void Chip8::SEVXBYTE() // 3XNN
 {
+    uint8_t x = (opcode & 0x0F00) >> 8;
     uint8_t nn = (opcode & 0x00FF);
-    uint8_t vx = V[(opcode & 0x0F00) >> 8];
 
-    if (nn == vx)
+    if (V[x] == nn)
         pc += 4;
     else
         pc += 2;
@@ -234,10 +234,10 @@ void Chip8::SEVXBYTE() // 3XNN
 
 void Chip8::SNEVXBYTE() // 4XNN
 {
+    uint8_t x = (opcode & 0x0F00) >> 8;
     uint8_t nn = (opcode & 0x00FF);
-    uint8_t vx = V[(opcode & 0x0F00) >> 8];
 
-    if (nn != vx)
+    if (V[x] != nn)
         pc += 4;
     else
         pc += 2;
@@ -245,10 +245,10 @@ void Chip8::SNEVXBYTE() // 4XNN
 
 void Chip8::SEVXVY() // 5XY0
 {
-    uint8_t vx = V[(opcode & 0x0F00) >> 8];
-    uint8_t vy = V[(opcode & 0x00F0) >> 4];
+    uint8_t x = (opcode & 0x0F00) >> 8;
+    uint8_t y = (opcode & 0x00F0) >> 4;
 
-    if (vx == vy)
+    if (V[x] == V[y])
         pc += 4;
     else
         pc += 2;
@@ -256,121 +256,125 @@ void Chip8::SEVXVY() // 5XY0
 
 void Chip8::LDVXBYTE() // 6XNN
 {
+    uint8_t x = (opcode & 0x0F00) >> 8;
     uint8_t nn = (opcode & 0x00FF);
 
-    V[(opcode & 0x0F00) >> 8] = nn;
+    V[x] = nn;
+
     pc += 2;
 }
 
 void Chip8::ADDVXBYTE() // 7XNN
 {
+    uint8_t x = (opcode & 0x0F00) >> 8;
     uint8_t nn = (opcode & 0x00FF);
 
-    V[(opcode & 0x0F00) >> 8] += nn;
+    V[x] += nn;
+
     pc += 2;
 }
 
 void Chip8::LDVXVY() // 8XY0
 {
-    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x00F0) >> 4]);
+    uint8_t x = (opcode & 0x0F00) >> 8;
+    uint8_t y = (opcode & 0x00F0) >> 4;
+
+    V[x] = V[y];
+
     pc += 2;
 }
 
 void Chip8::ORVXVY() // 8XY1
 {
-    V[(opcode & 0x0F00) >> 8] |= V[(opcode & 0x00F0) >> 4];
+    uint8_t x = (opcode & 0x0F00) >> 8;
+    uint8_t y = (opcode & 0x00F0) >> 4;
+
+    V[x] |= V[y];
+
     pc += 2;
 }
 
 void Chip8::ANDVXVY() // 8XY2
 {
-    V[(opcode & 0x0F00) >> 8] &= V[(opcode & 0x00F0) >> 4];
+    uint8_t x = (opcode & 0x0F00) >> 8;
+    uint8_t y = (opcode & 0x00F0) >> 4;
+
+    V[x] &= V[y];
+
     pc += 2;
 }
 
 void Chip8::XORVXVY() // 8XY3
 {
-    V[(opcode & 0x0F00) >> 8] ^=  V[(opcode & 0x00F0) >> 4];
+    uint8_t x = (opcode & 0x0F00) >> 8;
+    uint8_t y = (opcode & 0x00F0) >> 4;
+
+    V[x] ^= V[y];
+
     pc += 2;
 }
 
-void Chip8::AddVXVY() // 8XY4 Sets VF to 1 if there is an overflow 
+void Chip8::ADDVXVY() // 8XY4 Sets VF to 1 if there is an overflow 
 {
-    uint8_t sum = V[(opcode & 0x0F00) >> 8] + V[(opcode & 0x00F0) >> 4];
+    uint8_t x = (opcode & 0x0F00) >> 8;
+    uint8_t y = (opcode & 0x00F0) >> 4;
+    uint16_t sum = V[x] + V[y];
 
-    if (sum > 0x00FF)
-        V[0xF] = 1;
-    else
-        V[0xF] = 0;
-    
-    V[(opcode & 0x0F00) >> 8] = sum;
+    V[0xF] = sum > 0xFF ? 1 : 0;
+    V[x] = sum & 0xFF;
+
     pc += 2;
 }
 
 void Chip8::SUBVXVY() // 8XY5 Sets VF to 0 if there is an underflow 
 {
-    uint8_t vx = V[(opcode & 0x0F00) >> 8];
-    uint8_t vy = V[(opcode & 0x00F0) >> 4];
+    uint8_t x = (opcode & 0x0F00) >> 8;
+    uint8_t y = (opcode & 0x00F0) >> 4;
+    
+    V[0xF] = V[x] > V[y] ? 1 : 0;
+    V[x] -= V[y];
 
-    if (vx > vy)
-        V[0xF] = 1;
-    else
-        V[0xF] = 0;
-
-    V[(opcode & 0x0F00) >> 8] -= V[(opcode & 0x00F0) >> 4];
     pc += 2;
 }
 
 void Chip8::SHRVXVY() // 8XY6 Shifts VX to the right by 1 bit, if LSB is 1
 {
-    uint8_t vx = V[(opcode & 0x0F00) >> 8];
+    uint8_t x = (opcode & 0x0F00) >> 8;
 
     // this gets us the LSB 
-    if (vx & 0x1)
-        V[0xF] = 1;
-    else
-        V[0xF] = 0;
+    V[0xF] = V[x] & 0x1 ? 1 : 0;
+    V[x] >>= 1;
 
-    V[(opcode & 0x0F00) >> 8] >>= 1;
     pc += 2;
 }
 
 void Chip8::SUBNVXVY() // 8XY7 Sets VF to 0 if there is an underflow
 {
-    uint8_t vx = V[(opcode & 0x0F00) >> 8];
-    uint8_t vy = V[(opcode & 0x00F0) >> 4];
+    uint8_t x = (opcode & 0x0F00) >> 8;
+    uint8_t y = (opcode & 0x00F0) >> 4;
 
-    if (vy > vx)
-        V[0xF] = 1;
-    else
-        V[0xF] = 0;
+    V[0xF] = V[y] > V[x] ? 1 : 0;
+    V[x] = V[y] - V[x];
 
-    V[(opcode & 0x0F00) >> 8] = vy - vx;
     pc += 2;
 }
 
 void Chip8::SHLVXVY() // 8XYE, we check MSB
 {
-    uint8_t vx = V[(opcode & 0x0F00) >> 8];
+    uint8_t x = (opcode & 0x0F00) >> 8;
 
-    // move the highest bit to the end and check if its 1
-    // 10000000
-    // 00000001
-    if ((vx >> 7) & 1)
-        V[0xF] = 1;
-    else
-        V[0xF] = 0;
+    V[0xF] = (V[x] >> 7) & 1 ? 1 : 0;
+    V[x] <<= 1;
 
-    V[(opcode & 0x0F00) >> 8] <<= 1;
     pc += 2;
 }
 
 void Chip8::SNEVXVY() // 9XY0
 {
-    uint8_t vx = V[(opcode & 0x0F00) >> 8];
-    uint8_t vy = V[(opcode & 0x00F0) >> 4];
+    uint8_t x = (opcode & 0x0F00) >> 8;
+    uint8_t y = (opcode & 0x00F0) >> 4;
 
-    if (vx != vy)
+    if (V[x] != V[y])
         pc += 4;
     else
         pc += 2;
@@ -381,6 +385,7 @@ void Chip8::LDIADDR() // ANNN
     uint16_t nnn = opcode & 0x0FFF;
 
     I = nnn;
+
     pc += 2; 
 }
 
@@ -395,51 +400,54 @@ void Chip8::JPV0ADDR() // BNNN
 void Chip8::RNDVXBYTE() // CXKK
 {
     // random number between 0 and 255
-    uint8_t rnd = rand() & 0x00FF; 
+    uint8_t x = (opcode & 0x0F00) >> 8;
+    uint8_t nn = opcode & 0x00FF;
+    uint8_t rnd = rand() & nn; 
 
-    V[(opcode & 0x0F00) >> 8] = rnd;
+    V[x] = rnd;
+
     pc += 2;
 }
 
 void Chip8::DRWVXVYNIBBLE() // DXYN
 {
-    uint8_t vx = V[(opcode & 0x0F00) >> 8];
-    uint8_t vy = V[(opcode & 0x00F0) >> 4];
-    uint8_t n = opcode & 0x000F;
+    uint8_t x = (opcode & 0x0F00) >> 8;
+    uint8_t y = (opcode & 0x00F0) >> 4;
+    uint8_t vx = V[x];
+    uint8_t vy = V[y];
+    uint8_t height = opcode & 0x000F;
 
     V[0xF] = 0; 
-    
-    for (int i = 0; i < n; i++)
+
+    for (int row = 0; row < height; row++)
     {
-        uint8_t pixel = memory[I + i];
+        uint8_t sprite = memory[I + row];
 
-        for (int j = 0; j < 8; j++)
+        for (int col = 0; col < 8; col++)
         {
-            if ((pixel & (0x80 >> j)))
+            if (sprite & (0x80 >> col))
             {
-                int x = (vx + j) % 64;
-                int y = (vy + i) % 32;
+                uint16_t scrWidth = (V[x] + col) % 64;
+                uint16_t scrHeight = (V[y] + row) % 32;
 
-                int index = x + (y * 64);
+                uint16_t index = scrWidth + scrHeight * 64;
 
-                if (display[index] == 1)
+                display[index] ^= 1;
+
+                if (display[index] == 0)
                     V[0xF] = 1;
-
-                display [index] ^= 1;
             }
         }
     }
-
-    drawFlag = true;
 
     pc += 2;
 }
 
 void Chip8::SKPVX() // EX9E
 {
-    uint8_t vx = V[(opcode & 0x0F00) >> 8];
+    uint8_t x = (opcode & 0x0F00) >> 8;
 
-    if (keys[vx] > 0)
+    if (keys[V[x]] == 1)
         pc += 4;
     else
         pc += 2;
@@ -447,9 +455,9 @@ void Chip8::SKPVX() // EX9E
 
 void Chip8::SKNPVX() // EXA1
 {
-    uint8_t vx = V[(opcode & 0x0F00) >> 8];
+    uint8_t x = (opcode & 0x0F00) >> 8;
 
-    if (keys[vx] == 0)
+    if (keys[V[x]] != 1)
         pc += 4;
     else
         pc += 2;
@@ -457,24 +465,27 @@ void Chip8::SKNPVX() // EXA1
 
 void Chip8::LDVXDT() // FX07
 {
-    V[(opcode & 0x0F00) >> 8] = delayTimer;
+    uint8_t x = (opcode & 0x0F00) >> 8;
+
+    V[x] = delayTimer;
+
     pc += 2;
 }
 
 void Chip8::LDVXK() // FX0A
 {
+    uint8_t x = (opcode & 0x0F00) >> 8;
     bool isKeyPressed = false;
 
     for (int i = 0; i < 16; i++)
     {
-       if (keys[i] > 0)
+       if (keys[i] != 0)
        {
-           V[(opcode & 0x0F00) >> 8] = i;
+           V[x] = i;
            isKeyPressed = true;
        }
     }
 
-    // if nothing was pressed run this instruction again
     if (!isKeyPressed)
         return;
 
@@ -483,77 +494,69 @@ void Chip8::LDVXK() // FX0A
 
 void Chip8::LDDTVX() // FX15
 {
-    uint8_t vx = V[(opcode & 0x0F00) >> 8];
+    uint8_t x = (opcode & 0x0F00) >> 8;
 
-    delayTimer = vx;
+    delayTimer = V[x];
+
     pc += 2;
 }
 
 void Chip8::LDSTVX() // FX18  
 {
-    uint8_t vx = V[(opcode & 0x0F00) >> 8];
+    uint8_t x = (opcode & 0x0F00) >> 8;
 
-    soundTimer = vx;
+    soundTimer = V[x];
+
     pc += 2;
 }
 
 void Chip8::ADDIVX() // FX1E
 {
-    uint8_t vx = V[(opcode & 0x0F00) >> 8];
+    uint8_t x = (opcode & 0x0F00) >> 8;
 
-    if (I + vx > 0xFFF)
-        V[0xF] = 1;
-    else
-        V[0xF] = 0;
+    V[0xF] = I + V[x] > 0xFFF ? 1 : 0;
     
-    I += vx;
+    I += V[x];
+
     pc += 2;
 }
 
 void Chip8::LDFVX() // FX29
 {
-    uint8_t vx = V[(opcode & 0x0F00) >> 8];
+    uint8_t x = (opcode & 0x0F00) >> 8;
 
-    I = vx * 0x5;
+    I = V[x] * 0x5;
+
     pc += 2;
 }
 
 void Chip8::LDBVX() // FX33
 {
-    // this is a pretty hard one, it needs to store some memory in a couple places
-    // we need to split it into 3 parts
-    // 100 goes in I
-    // 10 goes in I + 1
-    // 1 goes in I + 2
+    uint8_t x = (opcode & 0x0F00) >> 8;
 
-    uint8_t vx = V[(opcode & 0x0F00) >> 8];
+    memory[I] = V[x] / 100;
+    memory[I + 1] = (V[x] / 10) % 10;
+    memory[I + 2] = V[x] % 10;
 
-    memory[I] = vx / 100;
-    memory[I + 1] = (vx / 10) % 10;
-    memory[I + 2] = (vx % 100) % 10;
     pc += 2;
 }
 
 void Chip8::LDIVX() // FX55
 {
-    //uint8_t vx = V[(opcode & 0x0F00) >> 8];
     uint8_t x = (opcode & 0x0F00) >> 8;
 
     for (int i = 0; i <= x; i++)
         memory[I + i] = V[i]; 
 
-    I += x + 1;
     pc += 2;
 }
 
 void Chip8::LDVXI() // FX65
 {
-    //uint8_t vx = V[(opcode & 0x0F00) >> 8];
     uint8_t x = (opcode & 0x0F00) >> 8;
 
     for (int i = 0; i <= x; i++)
-        V[i] = memory[i + I]; 
+        V[i] = memory[I + i]; 
 
-    I += x + 1;
     pc += 2;
 }

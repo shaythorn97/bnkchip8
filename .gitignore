@@ -2,6 +2,7 @@ build/
 out/
 
 CMAKESettings.json
+opcodes.csv
 
 .cache/
 .vs/

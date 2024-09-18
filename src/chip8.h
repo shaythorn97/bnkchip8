@@ -64,7 +64,7 @@ private:
     void ORVXVY(); // 8XY1
     void ANDVXVY(); // 8XY2
     void XORVXVY(); // 8XY3
-    void AddVXVY(); // 8XY4
+    void ADDVXVY(); // 8XY4
     void SUBVXVY(); // 8XY5
     void SHRVXVY(); // 8XY6
     void SUBNVXVY(); // 8XY7
