@@ -1,7 +1,9 @@
 # bnkchip8
 Simple Chip8 emulator written in C++.
-picture 1
-picture 2
+
+![image](https://github.com/user-attachments/assets/2cdfe96c-e8ca-47ac-8622-fb22efccab83)
+
+![image](https://github.com/user-attachments/assets/3dc66b22-03d0-4083-aac3-7ef6c0ceb980)
 
 ### What is Chip8
 Chip8 is emulator yes.
