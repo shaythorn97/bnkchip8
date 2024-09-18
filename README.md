@@ -17,15 +17,19 @@ However these are included in the `/external` directory so we do not need to dow
 
 #### Commands
 Once you have these installed, open a command prompt (you will need to use the Developer Command Prompt/Powershell if you are compiling with MSVC) and cd into the folder where you want to store the repo. Then run this command:
+
 `git clone https://github.com/shaythorn97/bnkchip8.git`
 
 Next you will need to run this command in order to generate the Ninja build files:
+
 `cmake -B build -G Ninja`
 
 Finally we run this command to build the project:
+
 `ninja -C build`
 
 Once everything is built we can run this command to run the project:
+
 `ninja -C build run`
 
 Its important that we run the project using this command as it makes sure that we are using the correct `/roms` directory. If you want to run this project using something like Visual Studio you will need to create your own `/roms` directory inside the build folder where the .exe file can see it.
