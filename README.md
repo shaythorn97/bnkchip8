@@ -15,7 +15,7 @@ This project does rely on 2 dependencies which are:
 
 However these are included in the `/external` directory so we do not need to download these and link them.
 
-##### Commands
+#### Commands
 Once you have these installed, open a command prompt (you will need to use the Developer Command Prompt/Powershell if you are compiling with MSVC) and cd into the folder where you want to store the repo. Then run this command:
 `git clone https://github.com/shaythorn97/bnkchip8.git`
 
@@ -30,7 +30,7 @@ Once everything is built we can run this command to run the project:
 
 Its important that we run the project using this command as it makes sure that we are using the correct `/roms` directory. If you want to run this project using something like Visual Studio you will need to create your own `/roms` directory inside the build folder where the .exe file can see it.
 
-##### Running ROMs
+#### Running ROMs
 When you run the project it will run a test ROM that will check if all the instructions are working correctly. If you want to run some other ROMs there are several supplied in the `/roms` directory. You can swap them out by opening `/src/main.cpp` and changing the file name of the the current ROM to match an existing one inside the `/roms` directory. We could change it to use the `pong.ch8` file for example.
 ```
 int main()
