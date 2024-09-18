@@ -1,5 +1,5 @@
 # bnkchip8
-Simple Chip8 emulator written in C++.
+Simple Chip8 emulator written in C++ and built with CMake and Ninja.
 
 ![image](https://github.com/user-attachments/assets/2cdfe96c-e8ca-47ac-8622-fb22efccab83)
 
