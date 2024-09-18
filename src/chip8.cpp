@@ -7,6 +7,22 @@
 #include <string>
 #include <iomanip>
 #include <sstream>
+#include "renderer.h"
+
+ROM::ROM(const std::string& fileName)
+{
+    std::string dir = "roms/" + fileName;
+
+    if (!Load(dir))
+    {
+        std::cout << "ROM with file name " << fileName << " could not be found!\n";
+        return;
+    }
+}
+
+ROM::~ROM()
+{
+}
 
 bool ROM::Load(const std::string& fileName)
 {
@@ -18,19 +34,19 @@ bool ROM::Load(const std::string& fileName)
         return false;
     }
 
-    std::streamsize size = file.tellg();
+    std::streamsize romSize = file.tellg();
 
-    if (size < 1 || size > 4096 - 0x200)
+    if (romSize < 1 || romSize > 4096 - 0x200)
     {
         std::cout << "ROM size is invalid\n";
         return false;
     }
 
-    this->size = size;
+    size = romSize;
 
     file.seekg(0, std::ios::beg);
 
-    if (!file.read((char*)(data), size))
+    if (!file.read((char*)(data), romSize))
     {
         std::cout << "File could not be read\n";
         return false;
@@ -41,7 +57,7 @@ bool ROM::Load(const std::string& fileName)
 }
 
 Chip8::Chip8(ROM& rom)
-    : rom(&rom)
+    : rom(&rom), window(640, 320, "bnkchip8")
 {
     // here we need to set our default values, we start at address 0x200
     pc = 0x200;
@@ -135,11 +151,13 @@ Chip8::Chip8(ROM& rom)
     instructions[0xF033] = std::bind(&Chip8::LDBVX, this);
     instructions[0xF055] = std::bind(&Chip8::LDIVX, this);
     instructions[0xF065] = std::bind(&Chip8::LDVXI, this);
+
+    Renderer::Init(window.width, window.height);
 }
 
 Chip8::~Chip8()
 {
-
+    Renderer::Shutdown();
 }
 
 void Chip8::EmulateCycle()
@@ -148,8 +166,7 @@ void Chip8::EmulateCycle()
 
     std::stringstream ss;
 
-    ss << std::dec << num << ": " << "Opcode: 0x" << std::hex << std::setw(4) << std::setfill('0') << opcode << "\n";
-    num++;
+    ss << "Opcode: 0x" << std::hex << std::setw(4) << std::setfill('0') << opcode << "\n";
 
     std::cout << ss.str();
 
@@ -163,6 +180,33 @@ void Chip8::EmulateCycle()
         Execute(key);
 
     UpdateTimers();
+}
+
+void Chip8::Display()
+{
+    Renderer::BeginBatch();
+
+    for (int i = 0; i < 64 * 32; i++)
+    {
+        int row = i / 64;
+        int col = i % 64;
+
+        int flip = 31 - row;
+
+        int pixel = display[i];
+
+        if (pixel == 1)
+            Renderer::DrawQuad(col * 10, flip * 10, 10, 10, 0.0f, 1.0f, 0.0f, 1.0f);
+    }
+
+    Renderer::EndBatch();
+
+    window.Update();
+}
+
+bool Chip8::IsRunning()
+{
+    return window.IsRunning();
 }
 
 void Chip8::Execute(uint16_t oc)

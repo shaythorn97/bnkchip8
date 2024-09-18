@@ -5,6 +5,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "renderer.h"
+
 static constexpr int CHIP8_MEMORY_SIZE = 4096;
 static constexpr int CHIP8_DISPLAY_SIZE = 64 * 32;
 
@@ -16,6 +18,9 @@ public:
     uint8_t data[CHIP8_MEMORY_SIZE - 0x200];
     int size;
 
+    ROM(const std::string& fileName);
+    ~ROM();
+
     bool Load(const std::string& fileName);
 };
 
@@ -23,11 +28,7 @@ public:
 class Chip8
 {
 public:
-    uint8_t memory[CHIP8_MEMORY_SIZE]; // this is our ram
-    uint8_t display[CHIP8_DISPLAY_SIZE]; // this is our display
-    bool drawFlag = false;
     ROM* rom;
-    int num = 1;
                               
     Chip8(ROM& rom);
     ~Chip8();
@@ -35,9 +36,13 @@ public:
     void ChangeROM(ROM& rom);
 
     void EmulateCycle();
+    void Display();
+    bool IsRunning();
 private:
+    uint8_t memory[CHIP8_MEMORY_SIZE]; // this is our ram
+    uint8_t display[CHIP8_DISPLAY_SIZE]; // this is our display
     uint8_t V[16]; // these are our registers
-    uint8_t I; // this is the index register
+    uint16_t I; // this is the index register
     uint16_t pc; // this is the program counter
     uint8_t delayTimer; // this is for timing the events in the game
     uint8_t soundTimer; // this is for sound but we are probs not going to use it because I cant be assed
@@ -46,11 +51,11 @@ private:
     uint16_t opcode; // this is the current opcode we are executing
     uint8_t keys[16]; // this is for storing our keycodes for input
     std::unordered_map<uint16_t, Instruction> instructions;
+    Window window;
 
     void UpdateTimers();
     void Execute(uint16_t oc);
 
-    // opcode functions - read the wiki or that thing I sent you, some of the names are a bit pants but I think they make sense
     void CLS(); // 00E0
     void RET(); // 00EE
     void JPADDR(); // 1NNN
