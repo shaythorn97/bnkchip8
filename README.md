@@ -26,7 +26,7 @@ Once you have these installed, open a command prompt (you will need to use the D
 
 `git clone https://github.com/shaythorn97/bnkchip8.git`
 
-Next you will need to run this command in order to generate the Ninja build files:
+Next you will need to cd into the folder you just cloned and run this command in order to generate the Ninja build files:
 
 `cmake -B build -G Ninja`
 
