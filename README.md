@@ -43,19 +43,26 @@ Its important that we run the project using this command as it makes sure that w
 #### Running ROMs
 When you run the project it will run a test ROM that will check if all the instructions are working correctly. If you want to run some other ROMs there are several supplied in the `/roms` directory. You can swap them out by opening `/src/main.cpp` and changing the file name of the the current ROM to match an existing one inside the `/roms` directory. We could change it to use the `pong.ch8` file for example.
 ```
+#include "chip8.h"
+
 int main()
 {
-    // we can change the ROM here
+    // we change the ROM here
     ROM rom("pong.ch8");
     Chip8 chip8(rom);
 
+    if (!chip8.rom)
+        return -1;
+
     while (chip8.IsRunning())
     {
+        // update
         chip8.EmulateCycle();
-        
+
+        // draw
         chip8.Display();
     }
-    
+
     return 0;
 }
 ```
