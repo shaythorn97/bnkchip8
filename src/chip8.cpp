@@ -9,6 +9,7 @@
 #include <sstream>
 
 ROM::ROM(const std::string& fileName)
+    : size(0)
 {
     std::string dir = "roms/" + fileName;
 
@@ -41,8 +42,6 @@ bool ROM::Load(const std::string& fileName)
         return false;
     }
 
-    size = romSize;
-
     file.seekg(0, std::ios::beg);
 
     if (!file.read((char*)(data), romSize))
@@ -52,11 +51,14 @@ bool ROM::Load(const std::string& fileName)
     }
 
     std::cout << "ROM '" << fileName << "' has been successfully loaded\n";
+    size = romSize;
+
     return true;
 }
 
 Chip8::Chip8(ROM& rom)
-    : rom(&rom), window(640, 320, "bnkchip8")
+    : window(640, 320, "bnkchip8"),
+      rom(nullptr)
 {
     // here we need to set our default values, we start at address 0x200
     pc = 0x200;
@@ -111,6 +113,9 @@ Chip8::Chip8(ROM& rom)
     // reset timers
     delayTimer = 0;
     soundTimer = 0;
+
+    if (rom.size > 0)
+        this->rom = &rom;
 
     // seed rand
     srand(time(NULL));
